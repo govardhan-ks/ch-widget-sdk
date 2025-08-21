@@ -1,0 +1,17 @@
+{
+  "name": "widget-sdk-core",
+  "version": "1.0.0",
+  "private": false,
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/types/index.d.ts",
+  "files": ["dist"],
+  "sideEffects": false,
+  "publishConfig": { "access": "public" },
+  "scripts": {
+    "build": "PKG=core rollup -c"
+  },
+  "dependencies": {
+    "penpal": "^6.2.2"
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+src/**/*.js
+src/**/*.d.ts
+**/*.map
+**/__tests__/**
+**/*.spec.*
+rollup.config.*
+!dist/**

@@ -1,0 +1,6 @@
+node_modules/
+**/*.map
+**/__tests__/**
+**/*.spec.*
+rollup.config.*
+!dist/**

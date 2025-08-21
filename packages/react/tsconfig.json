@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "widget-sdk-core": ["../core/dist/types"]
+    }
+  },
+  "include": ["src/**/*"]
+}
