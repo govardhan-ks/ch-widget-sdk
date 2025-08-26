@@ -3,7 +3,7 @@ import {
   getContext,
   getTheme,
   apiRequest,
-  ApiRequest,
+  ApiRequestOptions,
   initPlatform,
 } from "widget-sdk-core";
 
@@ -11,7 +11,7 @@ import {
 export class PlatformService {
   async getContext() { return getContext(); }
   async getTheme() { return getTheme(); }
-  async apiRequest(req: ApiRequest) { return apiRequest(req); }
+  async apiRequest(req: ApiRequestOptions) { return apiRequest(req); }
   async initPlatform(ctx?: { element?: HTMLElement }) { return initPlatform(ctx); }
 }
 

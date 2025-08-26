@@ -18,7 +18,12 @@ The SDK supports two integration methods:
 When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
 
 ### Web Component Integration
-When running as a standalone web component, the SDK uses DOM events for communication. **You must provide a DOM element** that will handle the custom events (`widget-request` and `widget-response`).
+When running as a standalone web component, the SDK automatically detects the web component and uses DOM events for communication. **No additional setup required.**
+
+**Automatic Detection**: The SDK automatically detects web components by:
+- Finding custom elements with hyphenated tag names (e.g., `<my-widget>`)
+- Using the current script context to locate the web component
+- Generating unique IDs for each widget instance
 
 ## Usage
 
@@ -114,37 +119,31 @@ import { AppComponent } from './app.component';
 export class AppModule { }
 ```
 
-#### Using Platform Service with Element
+#### Using Platform Service
 
 ```typescript
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PlatformService } from 'widget-sdk-angular';
 
 @Component({
   selector: 'app-my-component',
   template: `
-    <div #widgetElement>
-      <div *ngIf="context && theme">
-        <h1>Widget Dashboard</h1>
-        <p>Context: {{ context | json }}</p>
-        <p>Theme: {{ theme | json }}</p>
-        <button (click)="makeApiCall()">Make API Call</button>
-      </div>
+    <div *ngIf="context && theme">
+      <h1>Widget Dashboard</h1>
+      <p>Context: {{ context | json }}</p>
+      <p>Theme: {{ theme | json }}</p>
+      <button (click)="makeApiCall()">Make API Call</button>
     </div>
   `
 })
-export class MyComponent implements OnInit, AfterViewInit {
-  @ViewChild('widgetElement', { static: false }) widgetElement!: ElementRef;
+export class MyComponent implements OnInit {
   context: any;
   theme: any;
 
   constructor(private platformService: PlatformService) {}
 
-  async ngAfterViewInit() {
-    // Initialize platform with the widget element
-    await this.platformService.initPlatform({ element: this.widgetElement.nativeElement });
-    
-    // Get platform data
+  async ngOnInit() {
+    // Get platform data (automatic detection)
     this.context = await this.platformService.getContext();
     this.theme = await this.platformService.getTheme();
   }
@@ -171,12 +170,11 @@ The `PlatformService` provides:
 - `getContext()`: Returns platform context data
 - `getTheme()`: Returns theme configuration
 - `apiRequest(req)`: Makes HTTP requests to the platform
-- `initPlatform(ctx)`: Initializes platform with element (for web component usage)
 
-### ApiRequest Interface
+### ApiRequestOptions Interface
 
 ```typescript
-interface ApiRequest {
+interface ApiRequestOptions {
   url: string;
   method?: string;
   headers?: Record<string, string>;

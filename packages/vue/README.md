@@ -18,7 +18,12 @@ The SDK supports two integration methods:
 When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
 
 ### Web Component Integration
-When running as a standalone web component, the SDK uses DOM events for communication. **You must provide a DOM element** that will handle the custom events (`widget-request` and `widget-response`).
+When running as a standalone web component, the SDK automatically detects the web component and uses DOM events for communication. **No additional setup required.**
+
+**Automatic Detection**: The SDK automatically detects web components by:
+- Finding custom elements with hyphenated tag names (e.g., `<my-widget>`)
+- Using the current script context to locate the web component
+- Generating unique IDs for each widget instance
 
 ## Usage
 
@@ -77,7 +82,7 @@ const makeApiCall = async () => {
 
 #### Basic Setup
 
-Install the platform plugin with an element in your Vue app:
+Install the platform plugin in your Vue app:
 
 ```typescript
 import { createApp } from 'vue';
@@ -85,10 +90,7 @@ import { createPlatformPlugin } from 'widget-sdk-vue';
 import App from './App.vue';
 
 const app = createApp(App);
-
-// For web component usage, you need to pass an element to the plugin
-const element = document.querySelector('#my-widget');
-app.use(createPlatformPlugin({ element }));
+app.use(createPlatformPlugin());
 app.mount('#app');
 ```
 
@@ -133,10 +135,10 @@ The `usePlatform` composable provides:
 - `theme`: Theme configuration
 - `apiRequest(req)`: Function to make HTTP requests to the platform
 
-### ApiRequest Interface
+### ApiRequestOptions Interface
 
 ```typescript
-interface ApiRequest {
+interface ApiRequestOptions {
   url: string;
   method?: string;
   headers?: Record<string, string>;
@@ -147,6 +149,5 @@ interface ApiRequest {
 
 ## API Reference
 
-- `createPlatformPlugin(options?)`: Vue plugin factory function
-  - Options: `{ element?: HTMLElement }` (required for web component usage)
+- `createPlatformPlugin()`: Vue plugin factory function
 - `usePlatform()`: Composable that returns platform data and methods 

@@ -19,10 +19,12 @@ export interface PlatformAPI {
  */
 let connection: PlatformAPI | null = null;
 let element: HTMLElement | null = null;
+let widgetId: string | null = null;
 
 /**
  * Initialize core transport.
  * - If inside an iframe → use Penpal
+ * - If web component detected → use DOM events with detected element
  * - If standalone with custom element → use DOM events
  */
 export async function initPlatform(ctx?: { element?: HTMLElement }) {
@@ -34,9 +36,14 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
     return connection;
   }
 
-  if (ctx?.element) {
+  // Check if we're in a web component context
+  const webComponentElement = detectWebComponentElement(ctx?.element);
+  
+  if (webComponentElement) {
     // WebComponent case → DOM CustomEvents
-    element = ctx.element;
+    element = webComponentElement;
+    // Generate unique widget ID for this instance
+    widgetId = generateWidgetId(webComponentElement);
     connection = {
       getContext: () => requestFromElement("getContext"),
       getTheme: () => requestFromElement("getTheme"),
@@ -45,7 +52,57 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
     return connection;
   }
 
-  throw new Error("No valid platform transport found (iframe or element required)");
+  throw new Error("No valid platform transport found (iframe or web component required)");
+}
+
+/**
+ * Generate unique widget ID for event scoping
+ */
+function generateWidgetId(element: HTMLElement): string {
+  // Use existing ID if available
+  if (element.id) {
+    return element.id;
+  }
+  
+  // Generate unique ID based on element position and tag
+  const tagName = element.tagName.toLowerCase();
+  const index = Array.from(document.querySelectorAll(tagName)).indexOf(element);
+  const uniqueId = `${tagName}-${index}-${Date.now()}`;
+  
+  // Set the ID on the element for future reference
+  element.id = uniqueId;
+  
+  return uniqueId;
+}
+
+/**
+ * Detect web component element automatically or use provided element
+ */
+function detectWebComponentElement(providedElement?: HTMLElement): HTMLElement | null {
+  // If element is explicitly provided, use it
+  if (providedElement) {
+    return providedElement;
+  }
+
+  // Try to detect web component automatically
+  const possibleElements = [
+    // Check if we're inside a shadow DOM
+    document.activeElement?.shadowRoot?.host,
+    // Check for custom elements in the current context
+    (() => {
+      const element = document.querySelector('*');
+      if (element) {
+        const closest = element.closest('*');
+        if (closest && closest.tagName && closest.tagName.includes('-')) {
+          return closest;
+        }
+      }
+      return null;
+    })(),
+  ].filter(Boolean) as HTMLElement[];
+
+  // Return the first valid element found
+  return possibleElements[0] || null;
 }
 
 /**
@@ -53,11 +110,12 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
  */
 function requestFromElement<T = any>(type: string, payload?: any): Promise<T> {
   return new Promise((resolve) => {
-    if (!element) throw new Error("Platform element not initialized");
+    if (!element || !widgetId) throw new Error("Platform element not initialized");
 
     const handler = (e: Event) => {
       const custom = e as CustomEvent;
-      if (custom.detail.type === `${type}Response`) {
+      // Only handle events for this specific widget instance
+      if (custom.detail.type === `${type}Response` && custom.detail.widgetId === widgetId) {
         element?.removeEventListener("widget-response", handler as any);
         resolve(custom.detail.data);
       }
@@ -67,7 +125,11 @@ function requestFromElement<T = any>(type: string, payload?: any): Promise<T> {
 
     element.dispatchEvent(
       new CustomEvent("widget-request", {
-        detail: { type, payload },
+        detail: { 
+          type, 
+          payload, 
+          widgetId // Include widget ID for scoping
+        },
       })
     );
   });
@@ -75,6 +137,7 @@ function requestFromElement<T = any>(type: string, payload?: any): Promise<T> {
 
 /**
  * Public API functions (same across iframe & webcomponent)
+ * Auto-detects platform (iframe or web component)
  */
 export async function getContext() {
   const api = await initPlatform();

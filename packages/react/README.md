@@ -18,7 +18,12 @@ The SDK supports two integration methods:
 When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
 
 ### Web Component Integration
-When running as a standalone web component, the SDK uses DOM events for communication. **You must provide a DOM element** that will handle the custom events (`widget-request` and `widget-response`).
+When running as a standalone web component, the SDK automatically detects the web component and uses DOM events for communication. **No additional setup required.**
+
+**Automatic Detection**: The SDK automatically detects web components by:
+- Finding custom elements with hyphenated tag names (e.g., `<my-widget>`)
+- Using the current script context to locate the web component
+- Generating unique IDs for each widget instance
 
 ## Usage
 
@@ -82,17 +87,15 @@ function MyComponent() {
 
 #### Basic Setup
 
-Pass an element to the `PlatformProvider`:
+Wrap your app with the `PlatformProvider`:
 
 ```tsx
-import React, { useRef } from 'react';
+import React from 'react';
 import { PlatformProvider } from 'widget-sdk-react';
 
 function App() {
-  const widgetRef = useRef<HTMLDivElement>(null);
-  
   return (
-    <PlatformProvider element={widgetRef.current}>
+    <PlatformProvider>
       <YourApp />
     </PlatformProvider>
   );
@@ -124,7 +127,7 @@ function MyComponent() {
   if (!context || !theme) return <div>Loading...</div>;
 
   return (
-    <div ref={widgetRef}>
+    <div>
       <h1>Widget Dashboard</h1>
       <p>Context: {JSON.stringify(context)}</p>
       <p>Theme: {JSON.stringify(theme)}</p>
@@ -142,10 +145,10 @@ The `usePlatform` hook provides:
 - `theme`: Theme configuration
 - `apiRequest(req)`: Function to make HTTP requests to the platform
 
-### ApiRequest Interface
+### ApiRequestOptions Interface
 
 ```typescript
-interface ApiRequest {
+interface ApiRequestOptions {
   url: string;
   method?: string;
   headers?: Record<string, string>;
@@ -157,5 +160,4 @@ interface ApiRequest {
 ## API Reference
 
 - `PlatformProvider`: React context provider component
-  - Props: `element?: HTMLElement` (required for web component usage)
 - `usePlatform()`: Hook that returns platform data and methods 

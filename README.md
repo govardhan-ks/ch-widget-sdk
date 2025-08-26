@@ -47,14 +47,17 @@ The SDK supports two integration methods:
 When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
 
 ### 2. Web Component Integration
-When running as a standalone web component, the SDK uses DOM events for communication. **You must provide a DOM element** that will handle the custom events (`widget-request` and `widget-response`).
+When running as a standalone web component, the SDK automatically detects the web component and uses DOM events for communication. **No additional setup required.**
 
-**Important**: For web component usage, you need to pass an element to the SDK initialization. This element will be used to:
-- Dispatch `widget-request` events to the parent
-- Listen for `widget-response` events from the parent
-- Handle the communication between your widget and the platform
+**Automatic Detection**: The SDK automatically detects web components by:
+- Finding custom elements with hyphenated tag names (e.g., `<my-widget>`)
+- Using the current script context to locate the web component
+- Generating unique IDs for each widget instance
 
-**Element is Required**: Unlike iframe integration, web component usage **requires** you to provide a DOM element. This element serves as the communication bridge between your widget and the parent application.
+**Multiple Widgets**: The SDK automatically handles multiple web components on the same page by:
+- Generating unique IDs for each widget instance
+- Scoping events to specific widget instances
+- Preventing event collisions between different widgets
 
 ## Usage Examples
 
@@ -104,14 +107,12 @@ function MyComponent() {
 
 #### Web Component Integration
 ```tsx
-import React, { useRef } from 'react';
+import React from 'react';
 import { PlatformProvider, usePlatform } from 'widget-sdk-react';
 
 function App() {
-  const widgetRef = useRef<HTMLDivElement>(null);
-  
   return (
-    <PlatformProvider element={widgetRef.current}>
+    <PlatformProvider>
       <MyComponent />
     </PlatformProvider>
   );
@@ -136,7 +137,7 @@ function MyComponent() {
   if (!context || !theme) return <div>Loading...</div>;
 
   return (
-    <div ref={widgetRef}>
+    <div>
       <h1>Widget Dashboard</h1>
       <p>Context: {JSON.stringify(context)}</p>
       <p>Theme: {JSON.stringify(theme)}</p>
@@ -210,28 +211,22 @@ export class AppModule { }
 // In your component:
 @Component({
   template: `
-    <div #widgetElement>
-      <div *ngIf="context && theme">
-        <h1>Widget Dashboard</h1>
-        <p>Context: {{ context | json }}</p>
-        <p>Theme: {{ theme | json }}</p>
-        <button (click)="makeApiCall()">Make API Call</button>
-      </div>
+    <div *ngIf="context && theme">
+      <h1>Widget Dashboard</h1>
+      <p>Context: {{ context | json }}</p>
+      <p>Theme: {{ theme | json }}</p>
+      <button (click)="makeApiCall()">Make API Call</button>
     </div>
   `
 })
-export class MyComponent implements OnInit, AfterViewInit {
-  @ViewChild('widgetElement', { static: false }) widgetElement!: ElementRef;
+export class MyComponent implements OnInit {
   context: any;
   theme: any;
 
   constructor(private platformService: PlatformService) {}
 
-  async ngAfterViewInit() {
-    // Initialize platform with the widget element
-    await this.platformService.initPlatform({ element: this.widgetElement.nativeElement });
-    
-    // Get platform data
+  async ngOnInit() {
+    // Get platform data (automatic detection)
     this.context = await this.platformService.getContext();
     this.theme = await this.platformService.getTheme();
   }
@@ -298,10 +293,7 @@ import { createApp } from 'vue';
 import { createPlatformPlugin, usePlatform } from 'widget-sdk-vue';
 
 const app = createApp(App);
-
-// For web component usage, you need to pass an element to the plugin
-const element = document.querySelector('#my-widget');
-app.use(createPlatformPlugin({ element }));
+app.use(createPlatformPlugin());
 app.mount('#app');
 
 // In your component:
@@ -363,13 +355,9 @@ try {
 
 #### Web Component Integration
 ```typescript
-import { initPlatform, getContext, getTheme, apiRequest } from 'widget-sdk-core';
+import { getContext, getTheme, apiRequest } from 'widget-sdk-core';
 
-// Initialize with your web component element
-const element = document.querySelector('#my-widget');
-await initPlatform({ element });
-
-// Get platform data
+// Get platform data (automatic detection)
 const context = await getContext();
 const theme = await getTheme();
 
@@ -396,12 +384,12 @@ try {
 
 - **`getContext()`**: Returns platform context data as `Promise<Record<any, any>>`
 - **`getTheme()`**: Returns theme configuration as `Promise<Record<string, any>>`
-- **`apiRequest(req: ApiRequest)`**: Makes HTTP requests to the platform
+- **`apiRequest(req: ApiRequestOptions)`**: Makes HTTP requests to the platform
 
-### ApiRequest Interface
+### ApiRequestOptions Interface
 
 ```typescript
-interface ApiRequest {
+interface ApiRequestOptions {
   url: string;
   method?: string;
   headers?: Record<string, string>;
@@ -418,21 +406,18 @@ The SDK automatically detects the platform:
 
 ### Initialization
 
-**Iframe Usage**: No manual initialization required - the SDK automatically detects iframe environment.
+**Automatic Detection**: The SDK automatically detects the platform environment:
+- **Iframe**: Uses Penpal for parent-child communication
+- **Web Component**: Uses DOM CustomEvents for communication
 
-**Web Component Usage**: You must manually initialize with a DOM element:
+**No Manual Initialization Required**: Simply call the API functions directly:
 ```typescript
-import { initPlatform } from 'widget-sdk-core';
+import { getContext, getTheme, apiRequest } from 'widget-sdk-core';
 
-// The element will handle DOM events for communication
-const element = document.querySelector('#my-widget');
-await initPlatform({ element });
+// The SDK automatically detects the platform and initializes
+const context = await getContext();
+const theme = await getTheme();
 ```
-
-**Element Requirements**:
-- Must be a valid DOM element (HTMLElement)
-- Will be used to dispatch and listen for custom events
-- Should be the root element of your widget or a dedicated communication element
 
 ## Development
 
