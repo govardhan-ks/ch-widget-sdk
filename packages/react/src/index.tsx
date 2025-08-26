@@ -1,42 +1,50 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
-  getUser,
-  getSettings,
-  getCommunity,
-  applyThemeVariables,
-  fetchPlatformData,
+  getContext,
+  getTheme,
+  apiRequest,
+  ApiRequest,
+  initPlatform,
 } from "widget-sdk-core";
 
 type PlatformState = {
-  user: any;
-  settings: any;
-  community: any;
+  context: any;
+  theme: any;
 };
 
 const PlatformContext = createContext<any>(null);
 
-export function PlatformProvider({ children }: { children: React.ReactNode }) {
+export function PlatformProvider({ 
+  children, 
+  element 
+}: { 
+  children: React.ReactNode;
+  element?: HTMLElement;
+}) {
   const [state, setState] = useState<PlatformState>({
-    user: null,
-    settings: null,
-    community: null,
+    context: null,
+    theme: null,
   });
 
   useEffect(() => {
     async function init() {
-      const [user, settings, community] = await Promise.all([
-        getUser(),
-        getSettings(),
-        getCommunity(),
+      // Initialize platform if element is provided (web component mode)
+      if (element) {
+        await initPlatform({ element });
+      }
+      
+      const [context, theme] = await Promise.all([
+        getContext(),
+        getTheme(),
       ]);
-      setState({ user, settings, community });
+      setState({ context, theme });
     }
     void init();
-  }, []);
+  }, [element]);
 
   return (
     <PlatformContext.Provider
-      value={{ ...state, applyThemeVariables, fetchPlatformData }}
+      value={{ ...state, apiRequest, initPlatform }}
     >
       {children}
     </PlatformContext.Provider>

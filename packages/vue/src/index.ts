@@ -1,32 +1,38 @@
 import { App, inject, reactive } from "vue";
 import {
-  getUser,
-  getSettings,
-  getCommunity,
-  applyThemeVariables,
-  fetchPlatformData,
+  getContext,
+  getTheme,
+  apiRequest,
+  ApiRequest,
+  initPlatform,
 } from "widget-sdk-core";
 
 export const platformKey = Symbol("platform");
 
-export function createPlatformPlugin() {
+export function createPlatformPlugin(options?: { element?: HTMLElement }) {
   return {
     install: async (app: App) => {
-      const state = reactive<{ user: any; settings: any; community: any }>({ user: null as any, settings: null as any, community: null as any });
+      const state = reactive<{ context: any; theme: any }>({ 
+        context: null as any, 
+        theme: null as any 
+      });
 
-      const [user, settings, community] = await Promise.all([
-        getUser(),
-        getSettings(),
-        getCommunity(),
+      // Initialize platform if element is provided (web component mode)
+      if (options?.element) {
+        await initPlatform({ element: options.element });
+      }
+
+      const [context, theme] = await Promise.all([
+        getContext(),
+        getTheme(),
       ]);
-      state.user = user;
-      state.settings = settings;
-      state.community = community;
+      state.context = context;
+      state.theme = theme;
 
       app.provide(platformKey, {
         ...state,
-        applyThemeVariables,
-        fetchPlatformData,
+        apiRequest,
+        initPlatform,
       });
     },
   };

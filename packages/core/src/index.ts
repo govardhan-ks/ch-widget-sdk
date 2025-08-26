@@ -1,33 +1,92 @@
 import * as Penpal from "penpal";
 
-export interface FetchOpts {
+export interface ApiRequestOptions {
+  url: string;
   method?: string;
   headers?: Record<string, string>;
-  body?: any;
+  data?: any;
+  params?: any;
 }
 
 export interface PlatformAPI {
-  getUser(): Promise<{ id: string; name: string; role: string }>;
-  getSettings(): Promise<Record<string, any>>;
-  getCommunity(): Promise<{ id: string; name: string }>;
-  applyThemeVariables(vars: Record<string, string>): void;
-  fetchPlatformData(endpoint: string, options?: FetchOpts): Promise<any>;
+  getContext(): Promise<Record<any, any>>;
+  getTheme(): Promise<Record<string, any>>;
+  apiRequest(req: ApiRequestOptions): Promise<any>;
 }
 
+/**
+ * Internal state
+ */
 let connection: PlatformAPI | null = null;
+let element: HTMLElement | null = null;
 
-async function connect(): Promise<PlatformAPI> {
+/**
+ * Initialize core transport.
+ * - If inside an iframe → use Penpal
+ * - If standalone with custom element → use DOM events
+ */
+export async function initPlatform(ctx?: { element?: HTMLElement }) {
   if (connection) return connection;
-  connection = await Penpal.connectToParent<PlatformAPI>({ methods: {} }).promise;
-  return connection;
+
+  if (window.self !== window.top) {
+    // iframe case → Penpal
+    connection = await Penpal.connectToParent<PlatformAPI>({ methods: {} }).promise;
+    return connection;
+  }
+
+  if (ctx?.element) {
+    // WebComponent case → DOM CustomEvents
+    element = ctx.element;
+    connection = {
+      getContext: () => requestFromElement("getContext"),
+      getTheme: () => requestFromElement("getTheme"),
+      apiRequest: (req: ApiRequestOptions) => requestFromElement("apiRequest", req),
+    };
+    return connection;
+  }
+
+  throw new Error("No valid platform transport found (iframe or element required)");
 }
 
-export async function getUser() { return (await connect()).getUser(); }
-export async function getSettings() { return (await connect()).getSettings(); }
-export async function getCommunity() { return (await connect()).getCommunity(); }
-export async function applyThemeVariables(vars: Record<string,string>) {
-  return (await connect()).applyThemeVariables(vars);
+/**
+ * DOM event request handler for WebComponent use case
+ */
+function requestFromElement<T = any>(type: string, payload?: any): Promise<T> {
+  return new Promise((resolve) => {
+    if (!element) throw new Error("Platform element not initialized");
+
+    const handler = (e: Event) => {
+      const custom = e as CustomEvent;
+      if (custom.detail.type === `${type}Response`) {
+        element?.removeEventListener("widget-response", handler as any);
+        resolve(custom.detail.data);
+      }
+    };
+
+    element.addEventListener("widget-response", handler as any);
+
+    element.dispatchEvent(
+      new CustomEvent("widget-request", {
+        detail: { type, payload },
+      })
+    );
+  });
 }
-export async function fetchPlatformData(endpoint: string, options?: FetchOpts) {
-  return (await connect()).fetchPlatformData(endpoint, options);
+
+/**
+ * Public API functions (same across iframe & webcomponent)
+ */
+export async function getContext() {
+  const api = await initPlatform();
+  return api.getContext();
+}
+
+export async function getTheme() {
+  const api = await initPlatform();
+  return api.getTheme();
+}
+
+export async function apiRequest(req: ApiRequestOptions) {
+  const api = await initPlatform();
+  return api.apiRequest(req);
 }

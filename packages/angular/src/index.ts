@@ -1,19 +1,18 @@
 import { Injectable, NgModule } from "@angular/core";
 import {
-  getUser,
-  getSettings,
-  getCommunity,
-  applyThemeVariables,
-  fetchPlatformData,
+  getContext,
+  getTheme,
+  apiRequest,
+  ApiRequest,
+  initPlatform,
 } from "widget-sdk-core";
 
 @Injectable({ providedIn: "root" })
 export class PlatformService {
-  async getUser() { return getUser(); }
-  async getSettings() { return getSettings(); }
-  async getCommunity() { return getCommunity(); }
-  async applyThemeVariables(vars: Record<string,string>) { return applyThemeVariables(vars); }
-  async fetchPlatformData(endpoint: string, options?: any) { return fetchPlatformData(endpoint, options); }
+  async getContext() { return getContext(); }
+  async getTheme() { return getTheme(); }
+  async apiRequest(req: ApiRequest) { return apiRequest(req); }
+  async initPlatform(ctx?: { element?: HTMLElement }) { return initPlatform(ctx); }
 }
 
 @NgModule({

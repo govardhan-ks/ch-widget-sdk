@@ -41,12 +41,14 @@ module.exports = packages.map(pkg => {
       {
         file: path.join(pkgDir, "dist/index.esm.js"),
         format: "esm",
-        sourcemap: true
+        sourcemap: true,
+        exports: "named"
       },
       {
         file: path.join(pkgDir, "dist/index.cjs.js"),
         format: "cjs",
-        sourcemap: true
+        sourcemap: true,
+        exports: "named"
       }
     ],
     plugins: [

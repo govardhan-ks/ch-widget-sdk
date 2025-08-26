@@ -10,9 +10,21 @@ npm install widget-sdk-react
 npm install react react-dom
 ```
 
+## Platform Integration
+
+The SDK supports two integration methods:
+
+### Iframe Integration
+When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
+
+### Web Component Integration
+When running as a standalone web component, the SDK uses DOM events for communication. **You must provide a DOM element** that will handle the custom events (`widget-request` and `widget-response`).
+
 ## Usage
 
-### Basic Setup
+### Iframe Integration
+
+#### Basic Setup
 
 Wrap your app with the `PlatformProvider`:
 
@@ -29,7 +41,7 @@ function App() {
 }
 ```
 
-### Using Platform Data
+#### Using Platform Data
 
 Use the `usePlatform` hook to access platform data and methods:
 
@@ -38,29 +50,85 @@ import React from 'react';
 import { usePlatform } from 'widget-sdk-react';
 
 function MyComponent() {
-  const { user, settings, community, applyThemeVariables, fetchPlatformData } = usePlatform();
+  const { context, theme, apiRequest } = usePlatform();
 
-  const handleThemeChange = () => {
-    applyThemeVariables({
-      '--primary-color': '#ff6b6b',
-      '--secondary-color': '#4ecdc4'
-    });
+  const handleApiCall = async () => {
+    try {
+      const response = await apiRequest({
+        url: '/api/users',
+        method: 'POST',
+        data: { userId: '123' }
+      });
+      console.log('API Response:', response);
+    } catch (error) {
+      console.error('API Error:', error);
+    }
   };
 
-  const fetchUserData = async () => {
-    const data = await fetchPlatformData('/api/users/me');
-    console.log(data);
-  };
-
-  if (!user) return <div>Loading...</div>;
+  if (!context || !theme) return <div>Loading...</div>;
 
   return (
     <div>
-      <h1>Welcome, {user.name}!</h1>
-      <p>Role: {user.role}</p>
-      <p>Community: {community?.name}</p>
-      <button onClick={handleThemeChange}>Change Theme</button>
-      <button onClick={fetchUserData}>Fetch Data</button>
+      <h1>Widget Dashboard</h1>
+      <p>Context: {JSON.stringify(context)}</p>
+      <p>Theme: {JSON.stringify(theme)}</p>
+      <button onClick={handleApiCall}>Make API Call</button>
+    </div>
+  );
+}
+```
+
+### Web Component Integration
+
+#### Basic Setup
+
+Pass an element to the `PlatformProvider`:
+
+```tsx
+import React, { useRef } from 'react';
+import { PlatformProvider } from 'widget-sdk-react';
+
+function App() {
+  const widgetRef = useRef<HTMLDivElement>(null);
+  
+  return (
+    <PlatformProvider element={widgetRef.current}>
+      <YourApp />
+    </PlatformProvider>
+  );
+}
+```
+
+#### Using Platform Data
+
+```tsx
+import React from 'react';
+import { usePlatform } from 'widget-sdk-react';
+
+function MyComponent() {
+  const { context, theme, apiRequest } = usePlatform();
+
+  const handleApiCall = async () => {
+    try {
+      const response = await apiRequest({
+        url: '/api/users',
+        method: 'POST',
+        data: { userId: '123' }
+      });
+      console.log('API Response:', response);
+    } catch (error) {
+      console.error('API Error:', error);
+    }
+  };
+
+  if (!context || !theme) return <div>Loading...</div>;
+
+  return (
+    <div ref={widgetRef}>
+      <h1>Widget Dashboard</h1>
+      <p>Context: {JSON.stringify(context)}</p>
+      <p>Theme: {JSON.stringify(theme)}</p>
+      <button onClick={handleApiCall}>Make API Call</button>
     </div>
   );
 }
@@ -70,13 +138,24 @@ function MyComponent() {
 
 The `usePlatform` hook provides:
 
-- `user`: User information `{ id: string, name: string, role: string }`
-- `settings`: Platform settings
-- `community`: Community information `{ id: string, name: string }`
-- `applyThemeVariables(vars)`: Function to apply CSS theme variables
-- `fetchPlatformData(endpoint, options)`: Function to make HTTP requests
+- `context`: Platform context data
+- `theme`: Theme configuration
+- `apiRequest(req)`: Function to make HTTP requests to the platform
+
+### ApiRequest Interface
+
+```typescript
+interface ApiRequest {
+  url: string;
+  method?: string;
+  headers?: Record<string, string>;
+  data?: any;
+  params?: any;
+}
+```
 
 ## API Reference
 
 - `PlatformProvider`: React context provider component
+  - Props: `element?: HTMLElement` (required for web component usage)
 - `usePlatform()`: Hook that returns platform data and methods 

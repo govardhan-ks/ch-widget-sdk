@@ -1,6 +1,6 @@
 # widget-sdk-core
 
-Core SDK for connecting to the platform via iframe communication.
+Core SDK for connecting to the platform via iframe communication or web components.
 
 ## Installation
 
@@ -8,41 +8,114 @@ Core SDK for connecting to the platform via iframe communication.
 npm install widget-sdk-core
 ```
 
+## Platform Integration
+
+The SDK supports two integration methods:
+
+### Iframe Integration
+When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
+
+### Web Component Integration
+When running as a standalone web component, the SDK uses DOM events for communication. **You must provide a DOM element** that will handle the custom events (`widget-request` and `widget-response`).
+
 ## Usage
 
+### Iframe Integration
+
 ```typescript
-import { getUser, getSettings, getCommunity, applyThemeVariables, fetchPlatformData } from 'widget-sdk-core';
+import { getContext, getTheme, apiRequest } from 'widget-sdk-core';
 
-// Get user information
-const user = await getUser();
-console.log(user); // { id: string, name: string, role: string }
+// Initialize and get platform data
+const context = await getContext();
+const theme = await getTheme();
 
-// Get platform settings
-const settings = await getSettings();
-console.log(settings); // Record<string, any>
+console.log('Context:', context);
+console.log('Theme:', theme);
 
-// Get community information
-const community = await getCommunity();
-console.log(community); // { id: string, name: string }
+// Make API requests
+try {
+  const response = await apiRequest({
+    url: '/api/users',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: { userId: '123' }
+  });
+  console.log('API Response:', response);
+} catch (error) {
+  console.error('API Error:', error);
+}
+```
 
-// Apply theme variables
-await applyThemeVariables({
-  '--primary-color': '#007bff',
-  '--secondary-color': '#6c757d'
-});
+### Web Component Integration
 
-// Fetch platform data
-const data = await fetchPlatformData('/api/users', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ userId: '123' })
-});
+```typescript
+import { initPlatform, getContext, getTheme, apiRequest } from 'widget-sdk-core';
+
+// Initialize with your web component element
+const element = document.querySelector('#my-widget');
+await initPlatform({ element });
+
+// Get platform data
+const context = await getContext();
+const theme = await getTheme();
+
+console.log('Context:', context);
+console.log('Theme:', theme);
+
+// Make API requests
+try {
+  const response = await apiRequest({
+    url: '/api/users',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: { userId: '123' }
+  });
+  console.log('API Response:', response);
+} catch (error) {
+  console.error('API Error:', error);
+}
 ```
 
 ## API Reference
 
-- `getUser()`: Returns user information
-- `getSettings()`: Returns platform settings
-- `getCommunity()`: Returns community information
-- `applyThemeVariables(vars)`: Applies CSS theme variables
-- `fetchPlatformData(endpoint, options)`: Makes HTTP requests to the platform 
+### Core Functions
+
+- **`getContext()`**: Returns platform context data as `Promise<Record<any, any>>`
+- **`getTheme()`**: Returns theme configuration as `Promise<Record<string, any>>`
+- **`apiRequest(req: ApiRequest)`**: Makes HTTP requests to the platform
+
+### ApiRequest Interface
+
+```typescript
+interface ApiRequest {
+  url: string;
+  method?: string;
+  headers?: Record<string, string>;
+  data?: any;
+  params?: any;
+}
+```
+
+### Platform Detection
+
+The SDK automatically detects the platform:
+- **Iframe**: Uses Penpal for parent-child communication
+- **Web Component**: Uses DOM CustomEvents for communication
+
+### Initialization
+
+**Iframe Usage**: No manual initialization required - the SDK automatically detects iframe environment.
+
+**Web Component Usage**: You must manually initialize with a DOM element:
+```typescript
+import { initPlatform } from 'widget-sdk-core';
+
+// The element will handle DOM events for communication
+const element = document.querySelector('#my-widget');
+await initPlatform({ element });
+```
+
+**Element Requirements**:
+- Must be a valid DOM element (HTMLElement)
+- Will be used to dispatch and listen for custom events
+- Should be the root element of your widget or a dedicated communication element 

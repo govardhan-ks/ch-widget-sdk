@@ -10,9 +10,21 @@ npm install widget-sdk-angular
 npm install @angular/core
 ```
 
+## Platform Integration
+
+The SDK supports two integration methods:
+
+### Iframe Integration
+When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
+
+### Web Component Integration
+When running as a standalone web component, the SDK uses DOM events for communication. **You must provide a DOM element** that will handle the custom events (`widget-request` and `widget-response`).
+
 ## Usage
 
-### Basic Setup
+### Iframe Integration
+
+#### Basic Setup
 
 Import the `PlatformModule` in your app module:
 
@@ -33,7 +45,7 @@ import { AppComponent } from './app.component';
 export class AppModule { }
 ```
 
-### Using Platform Service
+#### Using Platform Service
 
 Inject the `PlatformService` in your components:
 
@@ -44,37 +56,110 @@ import { PlatformService } from 'widget-sdk-angular';
 @Component({
   selector: 'app-my-component',
   template: `
-    <div *ngIf="user">
-      <h1>Welcome, {{ user.name }}!</h1>
-      <p>Role: {{ user.role }}</p>
-      <p>Community: {{ community?.name }}</p>
-      <button (click)="changeTheme()">Change Theme</button>
-      <button (click)="fetchData()">Fetch Data</button>
+    <div *ngIf="context && theme">
+      <h1>Widget Dashboard</h1>
+      <p>Context: {{ context | json }}</p>
+      <p>Theme: {{ theme | json }}</p>
+      <button (click)="makeApiCall()">Make API Call</button>
     </div>
-    <div *ngIf="!user">Loading...</div>
+    <div *ngIf="!context || !theme">Loading...</div>
   `
 })
 export class MyComponent implements OnInit {
-  user: any;
-  community: any;
+  context: any;
+  theme: any;
 
   constructor(private platformService: PlatformService) {}
 
   async ngOnInit() {
-    this.user = await this.platformService.getUser();
-    this.community = await this.platformService.getCommunity();
+    this.context = await this.platformService.getContext();
+    this.theme = await this.platformService.getTheme();
   }
 
-  async changeTheme() {
-    await this.platformService.applyThemeVariables({
-      '--primary-color': '#ff6b6b',
-      '--secondary-color': '#4ecdc4'
-    });
+  async makeApiCall() {
+    try {
+      const response = await this.platformService.apiRequest({
+        url: '/api/users',
+        method: 'POST',
+        data: { userId: '123' }
+      });
+      console.log('API Response:', response);
+    } catch (error) {
+      console.error('API Error:', error);
+    }
+  }
+}
+```
+
+### Web Component Integration
+
+#### Basic Setup
+
+Import the `PlatformModule` in your app module:
+
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { PlatformModule } from 'widget-sdk-angular';
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    PlatformModule
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+#### Using Platform Service with Element
+
+```typescript
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { PlatformService } from 'widget-sdk-angular';
+
+@Component({
+  selector: 'app-my-component',
+  template: `
+    <div #widgetElement>
+      <div *ngIf="context && theme">
+        <h1>Widget Dashboard</h1>
+        <p>Context: {{ context | json }}</p>
+        <p>Theme: {{ theme | json }}</p>
+        <button (click)="makeApiCall()">Make API Call</button>
+      </div>
+    </div>
+  `
+})
+export class MyComponent implements OnInit, AfterViewInit {
+  @ViewChild('widgetElement', { static: false }) widgetElement!: ElementRef;
+  context: any;
+  theme: any;
+
+  constructor(private platformService: PlatformService) {}
+
+  async ngAfterViewInit() {
+    // Initialize platform with the widget element
+    await this.platformService.initPlatform({ element: this.widgetElement.nativeElement });
+    
+    // Get platform data
+    this.context = await this.platformService.getContext();
+    this.theme = await this.platformService.getTheme();
   }
 
-  async fetchData() {
-    const data = await this.platformService.fetchPlatformData('/api/users/me');
-    console.log(data);
+  async makeApiCall() {
+    try {
+      const response = await this.platformService.apiRequest({
+        url: '/api/users',
+        method: 'POST',
+        data: { userId: '123' }
+      });
+      console.log('API Response:', response);
+    } catch (error) {
+      console.error('API Error:', error);
+    }
   }
 }
 ```
@@ -83,11 +168,22 @@ export class MyComponent implements OnInit {
 
 The `PlatformService` provides:
 
-- `getUser()`: Returns user information `{ id: string, name: string, role: string }`
-- `getSettings()`: Returns platform settings
-- `getCommunity()`: Returns community information `{ id: string, name: string }`
-- `applyThemeVariables(vars)`: Applies CSS theme variables
-- `fetchPlatformData(endpoint, options)`: Makes HTTP requests to the platform
+- `getContext()`: Returns platform context data
+- `getTheme()`: Returns theme configuration
+- `apiRequest(req)`: Makes HTTP requests to the platform
+- `initPlatform(ctx)`: Initializes platform with element (for web component usage)
+
+### ApiRequest Interface
+
+```typescript
+interface ApiRequest {
+  url: string;
+  method?: string;
+  headers?: Record<string, string>;
+  data?: any;
+  params?: any;
+}
+```
 
 ## API Reference
 
