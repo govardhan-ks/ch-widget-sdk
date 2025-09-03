@@ -1,10 +1,12 @@
 # Dependencies
 node_modules/
 packages/*/node_modules/
+examples/*/node_modules/
 
 # Build outputs
 dist/
 packages/*/dist/
+examples/*/dist/
 
 # Logs
 npm-debug.log*

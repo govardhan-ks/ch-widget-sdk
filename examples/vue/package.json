@@ -1,0 +1,22 @@
+{
+  "name": "widget-sdk-example-vue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.34",
+    "widget-sdk-vue": "file:../../packages/vue"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.2",
+    "typescript": "^5.3.3",
+    "vite": "^4.5.0",
+    "vue-tsc": "^1.8.27"
+  }
+}
+

@@ -1,10 +1,13 @@
 {
     "name": "ch-widget-sdk",
     "private": true,
-    "workspaces": ["packages/*"],
+    "workspaces": ["packages/*", "examples/*"],
     "scripts": {
       "build": "rollup -c",
-      "publish": "lerna publish from-package"
+      "publish": "lerna publish from-package",
+      "dev:react": "npm --prefix examples/react run dev",
+      "dev:vue": "npm --prefix examples/vue run dev",
+      "dev:angular": "npm --prefix examples/angular run dev"
     },
     "devDependencies": {
       "lerna": "^7.0.0",

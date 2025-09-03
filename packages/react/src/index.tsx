@@ -5,11 +5,13 @@ import {
   apiRequest,
   ApiRequestOptions,
   initPlatform,
+  getPlatformElement,
 } from "widget-sdk-core";
 
 type PlatformState = {
   context: any;
   theme: any;
+  element: HTMLElement | null;
 };
 
 const PlatformContext = createContext<any>(null);
@@ -24,6 +26,7 @@ export function PlatformProvider({
   const [state, setState] = useState<PlatformState>({
     context: null,
     theme: null,
+    element: null,
   });
 
   useEffect(() => {
@@ -37,7 +40,7 @@ export function PlatformProvider({
         getContext(),
         getTheme(),
       ]);
-      setState({ context, theme });
+      setState({ context, theme, element: getPlatformElement() });
     }
     void init();
   }, [element]);

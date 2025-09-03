@@ -30,6 +30,13 @@ let widgetId: string | null = null;
 export async function initPlatform(ctx?: { element?: HTMLElement }) {
   if (connection) return connection;
 
+  // Dev fallback: if a global dev mock is present, use it
+  const devMock = (globalThis as any).__WIDGET_SDK_DEV__ as PlatformAPI | undefined;
+  if (devMock) {
+    connection = devMock;
+    return connection;
+  }
+
   if (window.self !== window.top) {
     // iframe case → Penpal
     connection = await Penpal.connectToParent<PlatformAPI>({ methods: {} }).promise;
@@ -53,6 +60,13 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
   }
 
   throw new Error("No valid platform transport found (iframe or web component required)");
+}
+
+/**
+ * Returns the detected/initialized platform element if available.
+ */
+export function getPlatformElement(): HTMLElement | null {
+  return element;
 }
 
 /**
