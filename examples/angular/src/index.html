@@ -23,7 +23,7 @@
         }
         async connectedCallback() {
           try {
-            const mod = await import('/src/start.tsx');
+            const mod = await import('/start.ts');
             if (typeof mod.start === 'function') {
               mod.start(this.shadowRoot);
             } else {

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 export default defineConfig({
+  root: path.resolve(__dirname, 'src'),
   resolve: {
     alias: {
       'widget-sdk-angular': path.resolve(__dirname, '../../packages/angular/src/index.ts'),
@@ -13,5 +14,3 @@ export default defineConfig({
     strictPort: true
   }
 });
-
-
