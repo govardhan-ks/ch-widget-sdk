@@ -100,23 +100,22 @@ function requestFromElement<T = any>(type: string, payload?: any): Promise<T> {
     const handler = (e: Event) => {
       const custom = e as CustomEvent;
       // Only handle events for this specific widget instance
-      if (custom.detail.type === `${type}Response` && custom.detail.widgetId === widgetId) {
-        element?.removeEventListener("widget-response", handler as any);
+      if (custom.detail.widgetId === widgetId) {
+        element?.removeEventListener(`widget-response-${widgetId}`, handler as any);
         resolve(custom.detail.data);
       }
     };
 
-    element.addEventListener("widget-response", handler as any);
+    element.addEventListener(`widget-response-${widgetId}`, handler as any);
 
-    element.dispatchEvent(
-      new CustomEvent("widget-request", {
-        detail: { 
-          type, 
-          payload, 
-          widgetId // Include widget ID for scoping
-        },
-      })
-    );
+    // Dispatch on both generic and namespaced channels
+    const detail = { 
+      type, 
+      payload, 
+      widgetId // Include widget ID for scoping
+    };
+
+    element.dispatchEvent(new CustomEvent(`widget-request-${widgetId}`, { detail }));
   });
 }
 

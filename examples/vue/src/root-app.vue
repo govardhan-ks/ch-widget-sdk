@@ -34,7 +34,6 @@ import { computed } from 'vue';
 import { usePlatform } from 'widget-sdk-vue';
 
 const platform:any = usePlatform();
-debugger;
 
 const containerStyle = computed(() => ({
   fontFamily: platform.theme?.fontFamily || 'sans-serif',
