@@ -7,6 +7,7 @@ import {
   initPlatform,
 } from "widget-sdk-core";
 
+
 @Injectable({ providedIn: "root" })
 export class PlatformService {
   async getContext() { return getContext(); }

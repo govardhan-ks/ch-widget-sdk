@@ -3,9 +3,8 @@ import {
   getContext,
   getTheme,
   apiRequest,
-  ApiRequestOptions,
   initPlatform,
-  getPlatformElement,
+  getPlatformElement
 } from "widget-sdk-core";
 
 type PlatformState = {

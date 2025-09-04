@@ -44,7 +44,7 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
   }
 
   // Check if we're in a web component context
-  const webComponentElement = detectWebComponentElement(ctx?.element);
+  const webComponentElement = ctx?.element;
   
   if (webComponentElement) {
     // WebComponent case → DOM CustomEvents
@@ -89,35 +89,6 @@ function generateWidgetId(element: HTMLElement): string {
   return uniqueId;
 }
 
-/**
- * Detect web component element automatically or use provided element
- */
-function detectWebComponentElement(providedElement?: HTMLElement): HTMLElement | null {
-  // If element is explicitly provided, use it
-  if (providedElement) {
-    return providedElement;
-  }
-
-  // Try to detect web component automatically
-  const possibleElements = [
-    // Check if we're inside a shadow DOM
-    document.activeElement?.shadowRoot?.host,
-    // Check for custom elements in the current context
-    (() => {
-      const element = document.querySelector('*');
-      if (element) {
-        const closest = element.closest('*');
-        if (closest && closest.tagName && closest.tagName.includes('-')) {
-          return closest;
-        }
-      }
-      return null;
-    })(),
-  ].filter(Boolean) as HTMLElement[];
-
-  // Return the first valid element found
-  return possibleElements[0] || null;
-}
 
 /**
  * DOM event request handler for WebComponent use case

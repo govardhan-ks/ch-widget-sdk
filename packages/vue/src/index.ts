@@ -3,7 +3,6 @@ import {
   getContext,
   getTheme,
   apiRequest,
-  ApiRequestOptions,
   initPlatform,
 } from "widget-sdk-core";
 
