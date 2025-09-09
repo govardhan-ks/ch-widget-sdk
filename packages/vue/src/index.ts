@@ -11,8 +11,6 @@ type Platform = {
   theme: any;
   apiRequest: typeof apiRequest;
   initPlatform: typeof initPlatform;
-  ready: boolean;
-  whenReady: () => Promise<void>;
 };
 
 export const platformKey: InjectionKey<Platform> = Symbol("platform");
@@ -53,8 +51,6 @@ export function createPlatformPlugin(options?: { element?: HTMLElement }) {
         const [context, theme] = await Promise.all([getContext(), getTheme()]);
         state.context = context;
         state.theme = theme;
-        isReady = true;
-        resolveReady?.();
       })();
     },
   };
@@ -66,9 +62,7 @@ export function usePlatform(): Platform {
       context: null,
       theme: null,
       apiRequest,
-      initPlatform,
-      ready: false,
-      whenReady: async () => {},
+      initPlatform
     }
   );
 }

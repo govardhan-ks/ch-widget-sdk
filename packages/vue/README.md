@@ -97,9 +97,6 @@ export async function start(shadowRoot: ShadowRoot) {
   const app = createApp(RootApp);
   app.use(createPlatformPlugin({ element: mount }));
   
-  const platform = usePlatform();
-  await platform.whenReady();
-  
   app.mount(mount);
 }
 ```
