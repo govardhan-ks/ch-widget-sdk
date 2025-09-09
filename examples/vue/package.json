@@ -5,12 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "npm run build:lib",
+    "build:lib": "vite build",
+    "build:iframe": "vite build --config vite.iframe.config.ts",
+    "build:all": "npm run build:lib && npm run build:iframe",
+    "preview": "vite preview",
+    "serve": "node server.js",
+    "start": "npm run build:all && npm run serve"
   },
   "dependencies": {
     "vue": "^3.4.34",
-    "widget-sdk-vue": "file:../../packages/vue"
+    "widget-sdk-vue": "file:../../packages/vue",
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.2",

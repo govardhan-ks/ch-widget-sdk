@@ -37,7 +37,7 @@ import { PlatformService } from 'widget-sdk-angular';
     <ng-template #loading>Loading...</ng-template>
   `
 })
-export class AppComponent {
+export class RootAppComponent {
   private platform = inject(PlatformService);
   context = signal<any | null>(null);
   theme = signal<any | null>(null);

@@ -1,13 +1,31 @@
 import { defineConfig } from 'vite';
-import path from 'path';
+import { resolve } from 'path';
 
 export default defineConfig({
-  root: path.resolve(__dirname, 'src'),
   resolve: {
     alias: {
-      'widget-sdk-angular': path.resolve(__dirname, '../../packages/angular/src/index.ts'),
-      'widget-sdk-core': path.resolve(__dirname, '../../packages/core/src/index.ts')
+      'widget-sdk-angular': resolve(__dirname, '../../packages/angular/src/index.ts'),
+      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
     }
+  },
+  build: {
+    lib: {
+      entry: resolve(__dirname, 'src/start.ts'), // Shadow DOM entry with start() function
+      name: 'AngularWidget',
+      fileName: 'start', // Will generate start.js
+      formats: ['es'], // ES modules for dynamic import support
+    },
+    rollupOptions: {
+      external: [
+        // Externalize dependencies if host app provides them (uncomment to reduce bundle size)
+        // '@angular/core',
+        // '@angular/common', 
+        // '@angular/platform-browser',
+        // '@angular/platform-browser-dynamic',
+        // 'zone.js',
+      ],
+    },
+    minify: false // Keep exports readable
   },
   server: {
     port: 4200,

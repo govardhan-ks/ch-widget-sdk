@@ -5,10 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run build:lib",
+    "build:lib": "tsc -b && vite build",
+    "build:iframe": "tsc -b && vite build --config vite.iframe.config.ts",
+    "build:all": "npm run build:lib && npm run build:iframe",
     "preview": "vite preview",
     "serve": "node server.js",
-    "start": "npm run build && npm run serve"
+    "start": "npm run build:all && npm run serve"
   },
   "dependencies": {
     "react": "^18.3.1",

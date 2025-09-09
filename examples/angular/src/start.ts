@@ -1,10 +1,9 @@
-import '../../shared/dev-mock';
 import 'zone.js';
 import '@angular/compiler';
 import { createApplication } from '@angular/platform-browser';
 import { APP_INITIALIZER } from '@angular/core';
 import { PlatformService } from 'widget-sdk-angular';
-import { AppComponent } from './root-app.component';
+import { RootAppComponent } from './root-app.component';
 
 export async function start(shadowRoot: ShadowRoot) {
   const mount = document.createElement('div');
@@ -22,5 +21,5 @@ export async function start(shadowRoot: ShadowRoot) {
     ],
   });
 
-  appRef.bootstrap(AppComponent, mount);
+  appRef.bootstrap(RootAppComponent, mount);
 }

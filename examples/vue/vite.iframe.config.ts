@@ -17,24 +17,24 @@ export default defineConfig({
     global: 'globalThis',
   },
   build: {
-    lib: {
-      entry: resolve(__dirname, 'src/start.ts'), // Shadow DOM entry with start() function
-      name: 'VueWidget',
-      fileName: 'start', // Will generate start.js
-      formats: ['es'], // ES modules for dynamic import support
-    },
+    outDir: 'dist', // Same output directory
+    emptyOutDir: false, // Don't clear the directory (preserve start.js)
     rollupOptions: {
-      external: [
-        // Externalize dependencies if host app provides them (uncomment to reduce bundle size)
-        // 'vue',
-      ],
+      input: {
+        // Build iframe HTML app
+        main: resolve(__dirname, 'index.html'),
+      },
+      output: {
+        format: 'es',
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
     },
-    minify: false // Keep exports readable
+    minify: false // Keep readable for debugging
   },
   server: {
     port: 5174,
     strictPort: true
   }
 });
-
-
