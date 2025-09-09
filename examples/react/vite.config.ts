@@ -11,6 +11,13 @@ export default defineConfig({
       'widget-sdk-core': path.resolve(__dirname, '../../packages/core/src/index.ts')
     }
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      }
+    }
+  },
   server: {
     port: 5173,
     strictPort: true
