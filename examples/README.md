@@ -16,50 +16,46 @@ examples/
 
 ## 🚀 Framework Examples
 
+Each framework provides **two integration approaches**:
+
 ### React (`react/`)
 
-**Iframe Entry Point:**
-- `index.html` - Iframe widget entry point
-- `src/main.tsx` - Iframe widget bootstrapping
+**📦 Build Outputs:**
+- `dist/start.js` - Shadow DOM library (1.25 MB, clean exports) 
+- `dist/index.html` + `dist/assets/` - Iframe application (240 KB)
 
-**Shadow DOM Entry Point:**
-- `shadow.html` - Shadow DOM development page
-- `src/start.tsx` - Shadow DOM widget bootstrapping
-
-**Shared:**
-- `src/root-app.tsx` - Main React widget component
+**🔧 Source Files:**
+- `src/start.tsx` - Shadow DOM entry point with `export { start }`
+- `src/main.tsx` - Iframe entry point  
+- `src/root-app.tsx` - Shared React widget component
 - `server.js` - Express server with CORS support
 - Port: `8080`
 
-### Angular (`angular/`)
-
-**Iframe Entry Point:**
-- `index.html` - Iframe widget entry point
-- `src/main.ts` - Iframe widget bootstrapping
-
-**Shadow DOM Entry Point:**
-- `shadow.html` - Shadow DOM development page
-- `src/start.ts` - Shadow DOM widget bootstrapping
-
-**Shared:**
-- `src/root-app.component.ts` - Main Angular widget component
-- `server.js` - Express server with CORS support
-- Port: `8082`
-
 ### Vue (`vue/`)
 
-**Iframe Entry Point:**
-- `index.html` - Iframe widget entry point
-- `src/main.ts` - Iframe widget bootstrapping
+**📦 Build Outputs:**  
+- `dist/start.js` - Shadow DOM library (257 KB, clean exports)
+- `dist/index.html` + `dist/assets/` - Iframe application (196 KB)
 
-**Shadow DOM Entry Point:**
-- `shadow.html` - Shadow DOM development page
-- `src/start.ts` - Shadow DOM widget bootstrapping
-
-**Shared:**
-- `src/root-app.vue` - Main Vue widget component
+**🔧 Source Files:**
+- `src/start.ts` - Shadow DOM entry point with `export { start }`
+- `src/main.ts` - Iframe entry point
+- `src/root-app.vue` - Shared Vue widget component  
 - `server.js` - Express server with CORS support
 - Port: `8081`
+
+### Angular (`angular/`)
+
+**📦 Build Outputs:**
+- `dist/start.js` - Shadow DOM library (2.79 MB, clean exports)
+- `dist/index.html` + `dist/assets/` - Iframe application (2.79 MB)
+
+**🔧 Source Files:**
+- `src/start.ts` - Shadow DOM entry point with `export { start }`
+- `src/main.ts` - Iframe entry point
+- `src/root-app.component.ts` - Shared Angular widget component
+- `server.js` - Express server with CORS support  
+- Port: `8082`
 
 ## 🛠️ Development Commands
 
@@ -68,8 +64,17 @@ examples/
 Each framework example supports the same npm scripts:
 
 ```bash
-# Build and serve (complete workflow)
+# Build and serve (complete workflow - both iframe and Shadow DOM)
 npm run start
+
+# Build only Shadow DOM library
+npm run build:lib
+
+# Build only iframe application  
+npm run build:iframe
+
+# Build both approaches
+npm run build:all
 
 # Just serve (if already built)
 npm run serve
@@ -77,7 +82,7 @@ npm run serve
 # Development mode (hot reload)
 npm run dev
 
-# Build only
+# Default build (same as build:lib)
 npm run build
 ```
 
@@ -107,9 +112,9 @@ npm run start
 
 ## 🎯 Integration Patterns
 
-### Iframe Integration
+### 🖼️ Iframe Integration
 
-All examples are designed for iframe embedding:
+All examples provide iframe applications:
 
 ```html
 <!-- Host application -->
@@ -118,15 +123,40 @@ All examples are designed for iframe embedding:
 <iframe src="http://localhost:8082/" width="100%" height="400"></iframe>
 ```
 
-### Communication
-
-Each widget uses Penpal for parent-child communication:
+Communication uses Penpal for parent-child messaging:
 
 ```typescript
 // Widget SDK automatically handles:
 const context = await getContext();
 const theme = await getTheme();
 const result = await apiRequest({ url: '/api/data' });
+```
+
+### 🎭 Shadow DOM Integration
+
+All examples provide clean JavaScript libraries for Shadow DOM embedding:
+
+```javascript
+// Dynamic import with predictable filename (no hashing)
+const { start } = await import('./start.js');
+
+// Create shadow DOM and initialize widget
+const element = document.querySelector('#my-widget');
+const shadowRoot = element.attachShadow({ mode: 'open' });
+await start(shadowRoot);
+```
+
+**Library URLs:**
+- React: http://localhost:8080/start.js
+- Vue: http://localhost:8081/start.js  
+- Angular: http://localhost:8082/start.js
+
+Communication uses custom DOM events with proper bubbling:
+
+```typescript
+// Events automatically bubble from Shadow DOM to main DOM
+shadowRoot.addEventListener('widget-request', handleRequest);
+shadowRoot.addEventListener('widget-response', handleResponse);
 ```
 
 ## 🔧 Server Features
@@ -174,16 +204,16 @@ npm run start
 
 ### Host Integration Testing
 
-Create a simple HTML file to test iframe embedding:
+#### Iframe Integration Test
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Widget Host Test</title>
+    <title>Widget Iframe Test</title>
 </head>
 <body>
-    <h1>Testing Widget Integration</h1>
+    <h1>Testing Iframe Widget Integration</h1>
     
     <h2>React Widget</h2>
     <iframe src="http://localhost:8080/" width="100%" height="400"></iframe>
@@ -193,6 +223,87 @@ Create a simple HTML file to test iframe embedding:
     
     <h2>Angular Widget</h2>
     <iframe src="http://localhost:8082/" width="100%" height="400"></iframe>
+</body>
+</html>
+```
+
+#### Shadow DOM Integration Test
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Widget Shadow DOM Test</title>
+    <style>
+        .widget-container {
+            border: 2px solid #ccc;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Testing Shadow DOM Widget Integration</h1>
+    
+    <div class="widget-container">
+        <h2>React Widget</h2>
+        <div id="react-widget"></div>
+    </div>
+    
+    <div class="widget-container">
+        <h2>Vue Widget</h2>
+        <div id="vue-widget"></div>
+    </div>
+    
+    <div class="widget-container">
+        <h2>Angular Widget</h2>
+        <div id="angular-widget"></div>
+    </div>
+
+    <script>
+        async function loadWidgets() {
+            // Load React Widget
+            try {
+                const { start: startReact } = await import('http://localhost:8080/start.js');
+                const reactElement = document.querySelector('#react-widget');
+                const reactShadow = reactElement.attachShadow({ mode: 'open' });
+                await startReact(reactShadow);
+                console.log('React widget loaded successfully');
+            } catch (error) {
+                console.error('Failed to load React widget:', error);
+            }
+
+            // Load Vue Widget  
+            try {
+                const { start: startVue } = await import('http://localhost:8081/start.js');
+                const vueElement = document.querySelector('#vue-widget');
+                const vueShadow = vueElement.attachShadow({ mode: 'open' });
+                await startVue(vueShadow);
+                console.log('Vue widget loaded successfully');
+            } catch (error) {
+                console.error('Failed to load Vue widget:', error);
+            }
+
+            // Load Angular Widget
+            try {
+                const { start: startAngular } = await import('http://localhost:8082/start.js');
+                const angularElement = document.querySelector('#angular-widget');
+                const angularShadow = angularElement.attachShadow({ mode: 'open' });
+                await startAngular(angularShadow);
+                console.log('Angular widget loaded successfully');
+            } catch (error) {
+                console.error('Failed to load Angular widget:', error);
+            }
+        }
+
+        // Load widgets when page is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadWidgets);
+        } else {
+            loadWidgets();
+        }
+    </script>
 </body>
 </html>
 ```
