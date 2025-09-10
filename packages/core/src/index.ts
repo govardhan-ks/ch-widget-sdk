@@ -12,6 +12,7 @@ export interface PlatformAPI {
   getContext(): Promise<Record<any, any>>;
   getTheme(): Promise<Record<string, any>>;
   apiRequest(req: ApiRequestOptions): Promise<any>;
+  onThemeChange?(callback: (theme: Record<string, any>) => void): () => void;
 }
 
 /**
@@ -20,6 +21,51 @@ export interface PlatformAPI {
 let connection: PlatformAPI | null = null;
 let element: HTMLElement | null = null;
 let widgetId: string | null = null;
+
+/**
+ * Simple Observable implementation for platform data
+ */
+class PlatformObservable<T> {
+  private observers: Set<(value: T) => void> = new Set();
+  private _value: T | null = null;
+
+  constructor(private initializer?: () => Promise<T>) {}
+
+  subscribe(observer: (value: T) => void): () => void {
+    this.observers.add(observer);
+    
+    // If we have a current value, emit it immediately
+    if (this._value !== null) {
+      observer(this._value);
+    } else if (this.initializer) {
+      // Initialize value if not yet loaded
+      this.initializer().then(value => {
+        this._value = value;
+        this.observers.forEach(obs => obs(value));
+      });
+    }
+
+    // Return unsubscribe function
+    return () => {
+      this.observers.delete(observer);
+    };
+  }
+
+  next(value: T): void {
+    this._value = value;
+    this.observers.forEach(observer => observer(value));
+  }
+
+  get value(): T | null {
+    return this._value;
+  }
+}
+
+/**
+ * Platform observables - single source of truth
+ */
+let contextObservable: PlatformObservable<any> | null = null;
+let themeObservable: PlatformObservable<any> | null = null;
 
 /**
  * Initialize core transport.
@@ -34,12 +80,18 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
   const devMock = (globalThis as any).__WIDGET_SDK_DEV__ as PlatformAPI | undefined;
   if (devMock) {
     connection = devMock;
+    setupObservables();
     return connection;
   }
 
   if (window.self !== window.top) {
     // iframe case → Penpal
-    connection = await Penpal.connectToParent<PlatformAPI>({ methods: {} }).promise;
+    const penpalConnection = await Penpal.connectToParent<PlatformAPI>({ methods: {} }).promise;
+    connection = {
+      ...penpalConnection,
+      onThemeChange: (penpalConnection as any).onThemeChange,
+    };
+    setupObservables();
     return connection;
   }
 
@@ -56,6 +108,7 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
       getTheme: () => requestFromElement("getTheme"),
       apiRequest: (req: ApiRequestOptions) => requestFromElement("apiRequest", req),
     };
+    setupObservables();
     return connection;
   }
 
@@ -89,6 +142,40 @@ function generateWidgetId(element: HTMLElement): string {
   return uniqueId;
 }
 
+
+/**
+ * Setup observables for context and theme
+ */
+function setupObservables(): void {
+  if (!connection) return;
+
+  // Initialize context observable
+  if (!contextObservable) {
+    contextObservable = new PlatformObservable(() => connection!.getContext());
+  }
+
+  // Initialize theme observable
+  if (!themeObservable) {
+    themeObservable = new PlatformObservable(() => connection!.getTheme());
+
+    // Set up theme change subscription based on platform
+    if (connection.onThemeChange) {
+      // Platform supports theme change notifications
+      connection.onThemeChange((newTheme) => {
+        themeObservable!.next(newTheme);
+      });
+    } else if (element && widgetId) {
+      // Web component case - listen for DOM events
+      const themeChangeHandler = (e: Event) => {
+        const custom = e as CustomEvent;
+        if (custom.detail.widgetId === widgetId && custom.detail.type === 'themeChange') {
+          themeObservable!.next(custom.detail.theme);
+        }
+      };
+      element.addEventListener('widget-theme-change', themeChangeHandler as any);
+    }
+  }
+}
 
 /**
  * DOM event request handler for WebComponent use case
@@ -129,15 +216,34 @@ function requestFromElement<T = any>(type: string, payload?: any): Promise<T> {
  */
 export async function getContext() {
   const api = await initPlatform();
-  return api.getContext();
+  return contextObservable?.value ?? api.getContext();
 }
 
 export async function getTheme() {
   const api = await initPlatform();
-  return api.getTheme();
+  return themeObservable?.value ?? api.getTheme();
 }
 
 export async function apiRequest(req: ApiRequestOptions) {
   const api = await initPlatform();
   return api.apiRequest(req);
 }
+
+/**
+ * Subscribe to context changes (returns current value immediately if available)
+ */
+export async function getContextObservable(): Promise<PlatformObservable<any>> {
+  await initPlatform();
+  return contextObservable!;
+}
+
+/**
+ * Subscribe to theme changes (returns current value immediately if available)
+ */
+export async function getThemeObservable(): Promise<PlatformObservable<any>> {
+  await initPlatform();
+  return themeObservable!;
+}
+
+// Export the PlatformObservable class for type annotations
+export { PlatformObservable };

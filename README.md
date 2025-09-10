@@ -49,6 +49,8 @@ When your widget runs inside an iframe, the SDK automatically uses Penpal for pa
 ### 2. Web Component Integration
 When running as a standalone web component, the SDK automatically detects the web component and uses DOM events for communication. **No additional setup required.**
 
+**🎨 Automatic Theme Updates**: Both integration methods support automatic theme updates. When the host application changes themes, all widgets automatically receive the new theme values without any manual subscription or handling required.
+
 **Automatic Detection**: The SDK automatically detects web components by:
 - Finding custom elements with hyphenated tag names (e.g., `<my-widget>`)
 - Using the current script context to locate the web component

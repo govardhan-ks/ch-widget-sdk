@@ -47,8 +47,20 @@ export class RootAppComponent {
   }
 
   private async init() {
-    this.context.set(await this.platform.getContext());
-    this.theme.set(await this.platform.getTheme());
+    // Initialize the platform service only if not already initialized
+    // (in shadow DOM mode, APP_INITIALIZER handles this)
+    if (!this.platform.isInitialized) {
+      await this.platform.initialize();
+    }
+    
+    // Subscribe to observable streams
+    this.platform.context$.subscribe(context => {
+      this.context.set(context);
+    });
+    
+    this.platform.theme$.subscribe(theme => {
+      this.theme.set(theme);
+    });
   }
 
   containerStyle = () => ({

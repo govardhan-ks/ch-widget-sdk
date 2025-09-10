@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Host Demo</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .examples {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .example {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .example h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .shadow-widget {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 0 10px 10px 0;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .current-state {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 10px;
+            border-radius: 4px;
+            height: 100px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Widget Host Demo</h1>
+        
+        <div class="controls">
+            <h3>Host Application Controls</h3>
+            <p>Simulate theme and context changes from the host application:</p>
+            
+            <div>
+                <strong>Theme Controls:</strong><br>
+                <button onclick="changeTheme('light')">☀️ Light Theme</button>
+                <button onclick="changeTheme('dark')">🌙 Dark Theme</button>
+                <button onclick="changeTheme('green')">🌱 Green Theme</button>
+            </div>
+            
+            <div style="margin-top: 10px;">
+                <strong>Context Controls:</strong><br>
+                <button onclick="changeUser('john')">👤 John Doe</button>
+                <button onclick="changeUser('jane')">👩‍💼 Jane Smith</button>
+                <button onclick="changeUser('admin')">⚡ Admin User</button>
+            </div>
+            
+            <div class="current-state">
+                <strong>Current State:</strong>
+                <div id="currentState">Loading...</div>
+            </div>
+            
+            <div class="log" id="eventLog"></div>
+        </div>
+
+        <div class="examples">
+            <div class="example">
+                <h3>🖼️ Iframe Integration (Penpal)</h3>
+                <iframe id="iframeWidget" src="http://localhost:5173" title="Iframe Widget"></iframe>
+                <p><small>Uses Penpal for parent-child communication. Theme changes sent via <code>onThemeChange</code> callback.</small></p>
+            </div>
+            
+            <div class="example">
+                <h3>🕸️ Shadow DOM Integration (CustomEvents)</h3>
+                <div id="shadowWidget" class="shadow-widget"></div>
+                <p><small>Uses CustomEvents for communication. Theme changes sent via <code>widget-theme-change</code> events.</small></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/penpal@6.2.2/dist/penpal.min.js"></script>
+    <script>
+        // Current application state
+        let currentTheme = {
+            colorPrimary: '#3b82f6',
+            colorPrimaryText: '#ffffff',
+            colorSurface: '#ffffff',
+            colorText: '#111827',
+            colorMuted: '#6b7280',
+            borderRadius: '10px',
+            spacingSm: '6px',
+            spacingMd: '12px',
+            spacingLg: '20px',
+            fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif",
+            button: {
+                height: '36px',
+                paddingInline: '14px'
+            }
+        };
+
+        let currentContext = {
+            user: {
+                id: 'u_001',
+                name: 'John Doe',
+                email: 'john@example.com',
+                role: 'admin',
+                avatarUrl: 'https://i.pravatar.cc/96?img=1'
+            },
+            org: {
+                id: 'org_001',
+                name: 'Acme Corp',
+                plan: 'pro',
+                locale: 'en-US'
+            }
+        };
+
+        // Theme presets
+        const themes = {
+            light: {
+                ...currentTheme,
+                colorPrimary: '#3b82f6',
+                colorSurface: '#ffffff',
+                colorText: '#111827',
+                colorMuted: '#6b7280'
+            },
+            dark: {
+                ...currentTheme,
+                colorPrimary: '#10b981',
+                colorSurface: '#1f2937',
+                colorText: '#f9fafb',
+                colorMuted: '#9ca3af'
+            },
+            green: {
+                ...currentTheme,
+                colorPrimary: '#059669',
+                colorSurface: '#f0fdf4',
+                colorText: '#064e3b',
+                colorMuted: '#6b7280'
+            }
+        };
+
+        const users = {
+            john: {
+                id: 'u_001',
+                name: 'John Doe',
+                email: 'john@example.com',
+                role: 'admin',
+                avatarUrl: 'https://i.pravatar.cc/96?img=1'
+            },
+            jane: {
+                id: 'u_002',
+                name: 'Jane Smith',
+                email: 'jane@example.com',
+                role: 'manager',
+                avatarUrl: 'https://i.pravatar.cc/96?img=2'
+            },
+            admin: {
+                id: 'u_admin',
+                name: 'Super Admin',
+                email: 'admin@example.com',
+                role: 'admin',
+                avatarUrl: 'https://i.pravatar.cc/96?img=3'
+            }
+        };
+
+        // Iframe widget management
+        let iframeConnection = null;
+        let themeChangeCallbacks = new Set();
+
+        // Shadow DOM widget management
+        let shadowWidgetElement = null;
+
+        function log(message) {
+            const logElement = document.getElementById('eventLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStateDisplay() {
+            document.getElementById('currentState').innerHTML = `
+                <div><strong>Theme:</strong> ${currentTheme.colorPrimary} (${currentTheme.colorSurface})</div>
+                <div><strong>User:</strong> ${currentContext.user.name} (${currentContext.user.role})</div>
+                <div><strong>Org:</strong> ${currentContext.org.name}</div>
+            `;
+        }
+
+        // Theme change function
+        function changeTheme(themeName) {
+            currentTheme = { ...themes[themeName] };
+            
+            // Notify iframe widget (Penpal)
+            if (iframeConnection) {
+                themeChangeCallbacks.forEach(callback => {
+                    try {
+                        callback(currentTheme);
+                        log(`🎨 Iframe theme updated to ${themeName}`);
+                    } catch (error) {
+                        log(`❌ Error updating iframe theme: ${error.message}`);
+                    }
+                });
+            }
+
+            // Notify shadow DOM widget (CustomEvents)
+            if (shadowWidgetElement) {
+                shadowWidgetElement.dispatchEvent(new CustomEvent('widget-theme-change', {
+                    detail: {
+                        type: 'themeChange',
+                        theme: currentTheme,
+                        widgetId: shadowWidgetElement.id
+                    }
+                }));
+                log(`🎨 Shadow DOM theme updated to ${themeName}`);
+            }
+
+            updateStateDisplay();
+        }
+
+        // Context change function
+        function changeUser(userName) {
+            currentContext.user = { ...users[userName] };
+            
+            // For simplicity, we're not implementing context change notifications
+            // in this demo, but it would work similarly to theme changes
+            log(`👤 User changed to ${currentContext.user.name}`);
+            updateStateDisplay();
+        }
+
+        // Initialize iframe connection
+        async function initIframeWidget() {
+            const iframe = document.getElementById('iframeWidget');
+            
+            try {
+                iframeConnection = Penpal.connectToChild({
+                    iframe: iframe,
+                    methods: {
+                        getContext: () => {
+                            log('📡 Iframe requested context');
+                            return currentContext;
+                        },
+                        getTheme: () => {
+                            log('📡 Iframe requested theme');
+                            return currentTheme;
+                        },
+                        apiRequest: async (req) => {
+                            log(`📡 Iframe API request: ${req.method || 'GET'} ${req.url}`);
+                            // Mock API response
+                            return { ok: true, data: 'Mock response' };
+                        },
+                        onThemeChange: (callback) => {
+                            log('📡 Iframe subscribed to theme changes');
+                            themeChangeCallbacks.add(callback);
+                            return () => {
+                                themeChangeCallbacks.delete(callback);
+                                log('📡 Iframe unsubscribed from theme changes');
+                            };
+                        }
+                    }
+                });
+
+                await iframeConnection.promise;
+                log('✅ Iframe widget connected successfully');
+            } catch (error) {
+                log(`❌ Iframe connection failed: ${error.message}`);
+            }
+        }
+
+        // Initialize shadow DOM widget
+        async function initShadowWidget() {
+            shadowWidgetElement = document.getElementById('shadowWidget');
+            shadowWidgetElement.id = 'shadow-widget-instance';
+            
+            // Listen for widget requests
+            shadowWidgetElement.addEventListener('widget-request', (event) => {
+                const { type, payload, widgetId } = event.detail;
+                log(`📡 Shadow DOM request: ${type}`);
+                
+                let response;
+                switch (type) {
+                    case 'getContext':
+                        response = currentContext;
+                        break;
+                    case 'getTheme':
+                        response = currentTheme;
+                        break;
+                    case 'apiRequest':
+                        // Mock API response
+                        response = { ok: true, data: 'Mock response' };
+                        break;
+                    default:
+                        log(`❌ Unknown request type: ${type}`);
+                        return;
+                }
+                
+                shadowWidgetElement.dispatchEvent(new CustomEvent('widget-response', {
+                    detail: { widgetId, data: response }
+                }));
+            });
+            
+            try {
+                // For demo purposes, we'll just show a placeholder
+                // In real implementation, you'd load the widget script here
+                shadowWidgetElement.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #666;">
+                        <h3>Shadow DOM Widget</h3>
+                        <p>Widget would be loaded here via dynamic import</p>
+                        <p><code>const { start } = await import('widget.js')</code></p>
+                        <p><code>await start(shadowRoot)</code></p>
+                    </div>
+                `;
+                log('✅ Shadow DOM widget initialized');
+            } catch (error) {
+                log(`❌ Shadow DOM initialization failed: ${error.message}`);
+            }
+        }
+
+        // Initialize everything
+        window.addEventListener('load', () => {
+            updateStateDisplay();
+            log('🚀 Host application started');
+            
+            // Try to initialize widgets
+            initIframeWidget();
+            initShadowWidget();
+            
+            // Set initial theme
+            setTimeout(() => changeTheme('light'), 1000);
+        });
+    </script>
+</body>
+</html>

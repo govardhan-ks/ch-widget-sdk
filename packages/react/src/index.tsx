@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
-  getContext,
-  getTheme,
   apiRequest,
   initPlatform,
-  getPlatformElement
+  getPlatformElement,
+  getContextObservable,
+  getThemeObservable
 } from "widget-sdk-core";
 
 type PlatformState = {
@@ -29,19 +29,39 @@ export function PlatformProvider({
   });
 
   useEffect(() => {
+    let contextUnsubscribe: (() => void) | null = null;
+    let themeUnsubscribe: (() => void) | null = null;
+
     async function init() {
-      // Initialize platform if element is provided (web component mode)
-      if (element) {
-        await initPlatform({ element });
-      }
+      // Initialize platform
+      await initPlatform(element ? { element } : undefined);
       
-      const [context, theme] = await Promise.all([
-        getContext(),
-        getTheme(),
+      // Subscribe to context and theme observables
+      const [contextObs, themeObs] = await Promise.all([
+        getContextObservable(),
+        getThemeObservable()
       ]);
-      setState({ context, theme, element: getPlatformElement() });
+
+      // Subscribe to changes
+      contextUnsubscribe = contextObs.subscribe((context: any) => {
+        setState(prevState => ({ ...prevState, context }));
+      });
+
+      themeUnsubscribe = themeObs.subscribe((theme: any) => {
+        setState(prevState => ({ ...prevState, theme }));
+      });
+
+      // Set platform element
+      setState(prevState => ({ ...prevState, element: getPlatformElement() }));
     }
-    void init();
+    
+    init();
+    
+    // Cleanup on unmount
+    return () => {
+      contextUnsubscribe?.();
+      themeUnsubscribe?.();
+    };
   }, [element]);
 
   return (

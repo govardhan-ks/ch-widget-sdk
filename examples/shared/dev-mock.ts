@@ -66,6 +66,9 @@ const theme: DevTheme = {
   }
 };
 
+// Theme change callback storage
+const themeChangeCallbacks = new Set<(theme: any) => void>();
+
 const mockApi: PlatformAPI = {
   async getContext() {
     return context as any;
@@ -82,7 +85,21 @@ const mockApi: PlatformAPI = {
       return { ok: true, org: context.org };
     }
     return { ok: true, echo: req };
+  },
+  onThemeChange(callback: (theme: any) => void) {
+    themeChangeCallbacks.add(callback);
+    return () => {
+      themeChangeCallbacks.delete(callback);
+    };
   }
+};
+
+// Expose function to simulate theme changes for testing/development only
+// In production, the host application would trigger theme changes via platform APIs
+(globalThis as any).__WIDGET_SDK_CHANGE_THEME__ = (newTheme: Partial<DevTheme>) => {
+  Object.assign(theme, newTheme);
+  themeChangeCallbacks.forEach(callback => callback(theme));
+  console.log('🎨 Dev mode: Theme changed', newTheme);
 };
 
 (globalThis as any).__WIDGET_SDK_DEV__ = mockApi;

@@ -334,6 +334,144 @@ context.org     // { name, plan, features }
 context.env     // { isDev, version, region }
 ```
 
+### **Runtime Theme Updates** 🔄
+
+The SDK automatically handles theme updates when the host application changes themes at runtime. **No manual work required!**
+
+```typescript
+// React - Automatic reactive updates
+function MyComponent() {
+  const { theme } = usePlatform(); // ✅ Updates automatically when host changes theme
+  
+  return <div style={{ color: theme.colorText }}>
+    Theme updates automatically!
+  </div>;
+}
+
+// Vue - Reactive theme updates  
+<template>
+  <div :style="{ color: platform.theme.colorText }">
+    Theme updates automatically!
+  </div>
+</template>
+
+<script setup>
+const platform = usePlatform(); // ✅ theme is reactive
+</script>
+
+// Angular - Observable theme stream
+@Component({
+  template: `<div [ngStyle]="{ color: theme()?.colorText }">
+    Theme updates automatically!
+  </div>`
+})
+export class MyComponent {
+  private platform = inject(PlatformService);
+  theme = signal<any>(null);
+  
+  async ngOnInit() {
+    // ✅ Initialize platform if needed (for iframe mode)
+    if (!this.platform.isInitialized) {
+      await this.platform.initialize();
+    }
+    
+    // ✅ Automatically subscribes to theme changes
+    this.platform.theme$.subscribe(theme => this.theme.set(theme));
+  }
+}
+```
+
+**Key Benefits:**
+- 🎯 **Zero Configuration** - Works out of the box
+- ⚡ **Automatic Updates** - UI re-renders when theme changes  
+- 🔒 **Type Safe** - Full TypeScript support
+- 🎨 **Framework Native** - Uses each framework's reactivity system
+
+### **Host Application Integration**
+
+For host applications to notify widgets of theme changes:
+
+#### **Iframe Integration**
+```typescript
+// In your parent application (host)
+const iframe = document.querySelector('#widget-iframe');
+const connection = Penpal.connectToChild({
+  iframe,
+  methods: {
+    // Provide onThemeChange method that widgets can subscribe to
+    onThemeChange: (callback) => {
+      // Store callback and call it when theme changes
+      themeChangeCallbacks.add(callback);
+      return () => themeChangeCallbacks.delete(callback);
+    }
+  }
+});
+
+// When your theme changes
+const newTheme = { colorPrimary: '#ff6b6b', /* ... */ };
+themeChangeCallbacks.forEach(callback => callback(newTheme));
+```
+
+#### **Web Component Integration**
+```typescript
+// In your host application
+const widgetElement = document.querySelector('my-widget');
+
+// Listen for widget requests
+widgetElement.addEventListener('widget-request', (e) => {
+  if (e.detail.type === 'getTheme') {
+    // Respond with current theme
+    widgetElement.dispatchEvent(new CustomEvent('widget-response', {
+      detail: { widgetId: e.detail.widgetId, data: currentTheme }
+    }));
+  }
+});
+
+// When theme changes, notify the widget
+function notifyThemeChange(newTheme) {
+  widgetElement.dispatchEvent(new CustomEvent('widget-theme-change', {
+    detail: { 
+      type: 'themeChange', 
+      theme: newTheme,
+      widgetId: widgetElement.id // Target specific widget instance
+    }
+  }));
+}
+
+// Example: Theme toggle
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const newTheme = isDark ? lightTheme : darkTheme;
+  notifyThemeChange(newTheme);
+});
+```
+
+#### **Angular Shadow DOM Setup**
+```typescript
+// For Angular widgets in shadow DOM, use APP_INITIALIZER
+import { PlatformService } from 'widget-sdk-angular';
+import { APP_INITIALIZER } from '@angular/core';
+
+export async function start(shadowRoot: ShadowRoot) {
+  const mount = document.createElement('div');
+  shadowRoot.appendChild(mount);
+
+  const appRef = await createApplication({
+    providers: [
+      PlatformService,
+      {
+        provide: APP_INITIALIZER,
+        useFactory: (platform: PlatformService) => 
+          () => platform.initialize({ element: mount }), // ✅ Pass element for shadow DOM
+        deps: [PlatformService],
+        multi: true,
+      },
+    ],
+  });
+
+  appRef.bootstrap(YourComponent, mount);
+}
+```
+
 ## 📊 Performance Benefits
 
 | Metric | Traditional | Widget SDK | Improvement |

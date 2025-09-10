@@ -14,7 +14,7 @@ export async function start(shadowRoot: ShadowRoot) {
       PlatformService,
       {
         provide: APP_INITIALIZER,
-        useFactory: (platform: PlatformService) => () => platform.initPlatform({ element: mount }),
+        useFactory: (platform: PlatformService) => () => platform.initialize({ element: mount }),
         deps: [PlatformService],
         multi: true,
       },
