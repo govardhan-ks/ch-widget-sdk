@@ -9,16 +9,10 @@ export default defineConfig({
     }
   },
   define: {
-    // Define process.env for browser compatibility
     'process.env': {},
     'process.env.NODE_ENV': JSON.stringify('development'),
     global: 'globalThis',
   },
-  optimizeDeps: {
-    include: ['rxjs', 'rxjs/operators'],
-    force: true
-  },
-  // DEV MODE: Simple app build - no library mode
   build: {
     rollupOptions: {
       input: {
@@ -31,7 +25,7 @@ export default defineConfig({
     port: 4200,
     strictPort: true,
     cors: {
-      origin: true, // Allow all origins
+      origin: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       credentials: true
