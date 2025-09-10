@@ -13,27 +13,27 @@ export default defineConfig({
   define: {
     // Define process.env for browser compatibility
     'process.env': {},
-    'process.env.NODE_ENV': JSON.stringify('production'),
+    'process.env.NODE_ENV': JSON.stringify('development'),
     global: 'globalThis',
   },
+  // DEV MODE: Simple app build - no library mode
   build: {
-    lib: {
-      entry: resolve(__dirname, 'src/start.ts'), // Shadow DOM entry with start() function
-      name: 'VueWidget',
-      fileName: 'start', // Will generate start.js
-      formats: ['es'], // ES modules for dynamic import support
-    },
     rollupOptions: {
-      external: [
-        // Externalize dependencies if host app provides them (uncomment to reduce bundle size)
-        // 'vue',
-      ],
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
     },
-    minify: false // Keep exports readable
+    minify: false
   },
   server: {
     port: 5174,
-    strictPort: true
+    strictPort: true,
+    cors: {
+      origin: true, // Allow all origins
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      credentials: true
+    }
   }
 });
 

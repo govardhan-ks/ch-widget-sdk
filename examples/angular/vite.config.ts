@@ -8,27 +8,33 @@ export default defineConfig({
       'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
     }
   },
+  define: {
+    // Define process.env for browser compatibility
+    'process.env': {},
+    'process.env.NODE_ENV': JSON.stringify('development'),
+    global: 'globalThis',
+  },
+  optimizeDeps: {
+    include: ['rxjs', 'rxjs/operators'],
+    force: true
+  },
+  // DEV MODE: Simple app build - no library mode
   build: {
-    lib: {
-      entry: resolve(__dirname, 'src/start.ts'), // Shadow DOM entry with start() function
-      name: 'AngularWidget',
-      fileName: 'start', // Will generate start.js
-      formats: ['es'], // ES modules for dynamic import support
-    },
     rollupOptions: {
-      external: [
-        // Externalize dependencies if host app provides them (uncomment to reduce bundle size)
-        // '@angular/core',
-        // '@angular/common', 
-        // '@angular/platform-browser',
-        // '@angular/platform-browser-dynamic',
-        // 'zone.js',
-      ],
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
     },
-    minify: false // Keep exports readable
+    minify: false
   },
   server: {
     port: 4200,
-    strictPort: true
+    strictPort: true,
+    cors: {
+      origin: true, // Allow all origins
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      credentials: true
+    }
   }
 });

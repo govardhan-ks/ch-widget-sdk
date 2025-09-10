@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:lib",
-    "build:lib": "vite build",
+    "build": "npm run build:all",
+    "build:lib": "vite build --config vite.lib.config.ts",
     "build:iframe": "vite build --config vite.iframe.config.ts",
     "build:all": "npm run build:lib && npm run build:iframe",
     "preview": "vite preview",

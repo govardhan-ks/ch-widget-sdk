@@ -5,11 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:lib",
-    "build:lib": "tsc -b && vite build",
+    "build": "npm run build:all",
+    "build:lib": "tsc -b && vite build --config vite.lib.config.ts",
     "build:iframe": "tsc -b && vite build --config vite.iframe.config.ts",
     "build:all": "npm run build:lib && npm run build:iframe",
-    "preview": "vite preview",
     "serve": "node server.js",
     "start": "npm run build:all && npm run serve"
   },

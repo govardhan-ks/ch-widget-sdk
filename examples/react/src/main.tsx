@@ -9,6 +9,7 @@ const root = createRoot(mount);
 root.render(
   <React.StrictMode>
     <PlatformProvider>
+      <div style={{color:"red", fontSize:"40px"}}>IFrame Mode</div>
       <App />
     </PlatformProvider>
   </React.StrictMode>

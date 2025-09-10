@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [vue()],
   resolve: {
     alias: {
-      'widget-sdk-react': resolve(__dirname, '../../packages/react/src/index.tsx'),
+      'widget-sdk-vue': resolve(__dirname, '../../packages/vue/src/index.ts'),
       'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
     }
   },
@@ -18,22 +18,21 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/start.tsx'), // Shadow DOM entry with start() function
-      name: 'ReactWidget',
+      entry: resolve(__dirname, 'src/start.ts'), // Shadow DOM entry with start() function
+      name: 'VueWidget',
       fileName: 'start', // Will generate start.js
       formats: ['es'], // ES modules for dynamic import support
     },
     rollupOptions: {
       external: [
         // Externalize dependencies if host app provides them (uncomment to reduce bundle size)
-        // 'react',
-        // 'react-dom',
+        // 'vue',
       ],
     },
     minify: false // Keep exports readable
   },
   server: {
-    port: 5173,
+    port: 5174,
     strictPort: true
   }
 });
