@@ -1,4 +1,4 @@
-import { connect, WindowMessenger, debug as penpalDebug } from 'penpal';
+import { connect, WindowMessenger } from 'penpal';
 
 export interface ApiRequestOptions {
   url: string;
@@ -68,7 +68,6 @@ let themeObservable: PlatformObservable<any> | null = null;
  */
 export async function initPlatform(ctx?: { element?: HTMLElement }) {
   if (connection) return connection;
-  penpalDebug('core-sdk');
 
   if (window.self !== window.top) {
     // iframe case → Penpal
@@ -76,6 +75,7 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
       remoteWindow: window.parent,
       allowedOrigins: ['*'],
     });
+
     const penpalConnection = await connect({
       messenger,
       methods: {
@@ -91,6 +91,7 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
         },
       },
     }).promise;
+
     connection = penpalConnection as unknown as PlatformAPI;
   }
 
@@ -112,17 +113,12 @@ export async function initPlatform(ctx?: { element?: HTMLElement }) {
     // Setup theme change listener for web component
     const themeChangeHandler = (e: Event) => {
       const custom = e as CustomEvent;
-      if (
-        custom.detail.widgetId === widgetId &&
-        custom.detail.type === 'themeChange'
-      ) {
-        if (themeObservable) {
-          themeObservable.next(custom.detail.theme);
-        }
+      if (themeObservable) {
+        themeObservable.next(custom.detail.theme);
       }
     };
     webComponentElement.addEventListener(
-      'widget-theme-change',
+      'theme-change',
       themeChangeHandler as any
     );
   }
@@ -153,9 +149,9 @@ function generateWidgetId(element: HTMLElement): string {
   }
 
   // Generate unique ID based on element position and tag
-  const tagName = element.tagName.toLowerCase();
-  const index = Array.from(document.querySelectorAll(tagName)).indexOf(element);
-  const uniqueId = `${tagName}-${index}-${Date.now()}`;
+  // const tagName = element.tagName.toLowerCase();
+  // const index = Array.from(document.querySelectorAll(tagName)).indexOf(element);
+  const uniqueId = `${Date.now()}`;
 
   // Set the ID on the element for future reference
   element.id = uniqueId;
