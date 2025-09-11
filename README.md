@@ -14,6 +14,7 @@ Framework-specific SDK packages for integrating with the platform via iframe com
 Choose the package for your framework:
 
 ### React
+
 ```bash
 npm install widget-sdk-react
 # Peer dependencies (if not already installed)
@@ -21,6 +22,7 @@ npm install react react-dom
 ```
 
 ### Angular
+
 ```bash
 npm install widget-sdk-angular
 # Peer dependencies (if not already installed)
@@ -28,6 +30,7 @@ npm install @angular/core
 ```
 
 ### Vue 3
+
 ```bash
 npm install widget-sdk-vue
 # Peer dependencies (if not already installed)
@@ -35,6 +38,7 @@ npm install vue
 ```
 
 ### Core (Vanilla JS/TypeScript)
+
 ```bash
 npm install widget-sdk-core
 ```
@@ -44,19 +48,23 @@ npm install widget-sdk-core
 The SDK supports two integration methods:
 
 ### 1. Iframe Integration
+
 When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
 
 ### 2. Web Component Integration
+
 When running as a standalone web component, the SDK automatically detects the web component and uses DOM events for communication. **No additional setup required.**
 
 **🎨 Automatic Theme Updates**: Both integration methods support automatic theme updates. When the host application changes themes, all widgets automatically receive the new theme values without any manual subscription or handling required.
 
 **Automatic Detection**: The SDK automatically detects web components by:
+
 - Finding custom elements with hyphenated tag names (e.g., `<my-widget>`)
 - Using the current script context to locate the web component
 - Generating unique IDs for each widget instance
 
 **Multiple Widgets**: The SDK automatically handles multiple web components on the same page by:
+
 - Generating unique IDs for each widget instance
 - Scoping events to specific widget instances
 - Preventing event collisions between different widgets
@@ -66,6 +74,7 @@ When running as a standalone web component, the SDK automatically detects the we
 ### React
 
 #### Iframe Integration
+
 ```tsx
 import React from 'react';
 import { PlatformProvider, usePlatform } from 'widget-sdk-react';
@@ -86,7 +95,7 @@ function MyComponent() {
       const response = await apiRequest({
         url: '/api/users',
         method: 'POST',
-        data: { userId: '123' }
+        data: { userId: '123' },
       });
       console.log('API Response:', response);
     } catch (error) {
@@ -108,6 +117,7 @@ function MyComponent() {
 ```
 
 #### Web Component Integration
+
 ```tsx
 import React from 'react';
 import { PlatformProvider, usePlatform } from 'widget-sdk-react';
@@ -128,7 +138,7 @@ function MyComponent() {
       const response = await apiRequest({
         url: '/api/users',
         method: 'POST',
-        data: { userId: '123' }
+        data: { userId: '123' },
       });
       console.log('API Response:', response);
     } catch (error) {
@@ -152,6 +162,7 @@ function MyComponent() {
 ### Angular
 
 #### Iframe Integration
+
 ```typescript
 import { NgModule } from '@angular/core';
 import { PlatformModule, PlatformService } from 'widget-sdk-angular';
@@ -160,7 +171,7 @@ import { PlatformModule, PlatformService } from 'widget-sdk-angular';
   imports: [PlatformModule],
   // ...
 })
-export class AppModule { }
+export class AppModule {}
 
 // In your component:
 @Component({
@@ -171,7 +182,7 @@ export class AppModule { }
       <p>Theme: {{ theme | json }}</p>
       <button (click)="makeApiCall()">Make API Call</button>
     </div>
-  `
+  `,
 })
 export class MyComponent implements OnInit {
   context: any;
@@ -189,7 +200,7 @@ export class MyComponent implements OnInit {
       const response = await this.platformService.apiRequest({
         url: '/api/users',
         method: 'POST',
-        data: { userId: '123' }
+        data: { userId: '123' },
       });
       console.log('API Response:', response);
     } catch (error) {
@@ -200,6 +211,7 @@ export class MyComponent implements OnInit {
 ```
 
 #### Web Component Integration
+
 ```typescript
 import { NgModule } from '@angular/core';
 import { PlatformModule, PlatformService } from 'widget-sdk-angular';
@@ -208,7 +220,7 @@ import { PlatformModule, PlatformService } from 'widget-sdk-angular';
   imports: [PlatformModule],
   // ...
 })
-export class AppModule { }
+export class AppModule {}
 
 // In your component:
 @Component({
@@ -219,7 +231,7 @@ export class AppModule { }
       <p>Theme: {{ theme | json }}</p>
       <button (click)="makeApiCall()">Make API Call</button>
     </div>
-  `
+  `,
 })
 export class MyComponent implements OnInit {
   context: any;
@@ -238,7 +250,7 @@ export class MyComponent implements OnInit {
       const response = await this.platformService.apiRequest({
         url: '/api/users',
         method: 'POST',
-        data: { userId: '123' }
+        data: { userId: '123' },
       });
       console.log('API Response:', response);
     } catch (error) {
@@ -251,6 +263,7 @@ export class MyComponent implements OnInit {
 ### Vue 3
 
 #### Iframe Integration
+
 ```typescript
 import { createApp } from 'vue';
 import { createPlatformPlugin, usePlatform } from 'widget-sdk-vue';
@@ -290,6 +303,7 @@ const makeApiCall = async () => {
 ```
 
 #### Web Component Integration
+
 ```typescript
 import { createApp } from 'vue';
 import { createPlatformPlugin, usePlatform } from 'widget-sdk-vue';
@@ -331,6 +345,7 @@ const makeApiCall = async () => {
 ### Core (Vanilla JS/TypeScript)
 
 #### Iframe Integration
+
 ```typescript
 import { getContext, getTheme, apiRequest } from 'widget-sdk-core';
 
@@ -347,7 +362,7 @@ try {
     url: '/api/users',
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: { userId: '123' }
+    data: { userId: '123' },
   });
   console.log('API Response:', response);
 } catch (error) {
@@ -356,6 +371,7 @@ try {
 ```
 
 #### Web Component Integration
+
 ```typescript
 import { getContext, getTheme, apiRequest } from 'widget-sdk-core';
 
@@ -372,7 +388,7 @@ try {
     url: '/api/users',
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: { userId: '123' }
+    data: { userId: '123' },
   });
   console.log('API Response:', response);
 } catch (error) {
@@ -403,16 +419,19 @@ interface ApiRequestOptions {
 ### Platform Detection
 
 The SDK automatically detects the platform:
+
 - **Iframe**: Uses Penpal for parent-child communication
 - **Web Component**: Uses DOM CustomEvents for communication
 
 ### Initialization
 
 **Automatic Detection**: The SDK automatically detects the platform environment:
+
 - **Iframe**: Uses Penpal for parent-child communication
 - **Web Component**: Uses DOM CustomEvents for communication
 
 **No Manual Initialization Required**: Simply call the API functions directly:
+
 ```typescript
 import { getContext, getTheme, apiRequest } from 'widget-sdk-core';
 
@@ -424,6 +443,7 @@ const theme = await getTheme();
 ## Development
 
 ### Build
+
 ```bash
 # Build all packages
 npx rollup -c
@@ -433,6 +453,7 @@ PKG=react npx rollup -c
 ```
 
 ### Publish
+
 ```bash
 # Version and publish
 npx lerna version

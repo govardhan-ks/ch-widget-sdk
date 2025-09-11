@@ -9,8 +9,5 @@ import { RootAppComponent } from './root-app.component';
 
 // Bootstrap the Angular app for iframe usage with JIT support
 bootstrapApplication(RootAppComponent, {
-  providers: [
-    importProvidersFrom(CommonModule),
-    PlatformService
-  ]
+  providers: [importProvidersFrom(CommonModule), PlatformService],
 }).catch(err => console.error('Error starting Angular iframe app:', err));

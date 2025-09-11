@@ -15,12 +15,15 @@ npm install @angular/core
 The SDK supports two integration methods:
 
 ### 🖼️ Iframe Integration
+
 When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
 
-### 🎭 Shadow DOM Integration  
+### 🎭 Shadow DOM Integration
+
 When running as a Shadow DOM web component, the SDK automatically detects the shadow root and uses DOM events for communication. **No additional setup required.**
 
 **Automatic Detection**: The SDK automatically detects integration context by:
+
 - Checking for iframe parent window communication
 - Finding Shadow DOM boundaries and custom elements
 - Using the current script context to locate the web component
@@ -42,13 +45,10 @@ import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    PlatformModule
-  ],
-  bootstrap: [AppComponent]
+  imports: [BrowserModule, PlatformModule],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
 ```
 
 #### Using Platform Service
@@ -69,7 +69,7 @@ import { PlatformService } from 'widget-sdk-angular';
       <button (click)="makeApiCall()">Make API Call</button>
     </div>
     <div *ngIf="!context || !theme">Loading...</div>
-  `
+  `,
 })
 export class MyComponent implements OnInit {
   context: any;
@@ -87,7 +87,7 @@ export class MyComponent implements OnInit {
       const response = await this.platformService.apiRequest({
         url: '/api/users',
         method: 'POST',
-        data: { userId: '123' }
+        data: { userId: '123' },
       });
       console.log('API Response:', response);
     } catch (error) {
@@ -120,7 +120,8 @@ export async function start(shadowRoot: ShadowRoot) {
       PlatformService,
       {
         provide: APP_INITIALIZER,
-        useFactory: (platform: PlatformService) => () => platform.initPlatform({ element: mount }),
+        useFactory: (platform: PlatformService) => () =>
+          platform.initPlatform({ element: mount }),
         deps: [PlatformService],
         multi: true,
       },
@@ -159,7 +160,7 @@ import { PlatformService } from 'widget-sdk-angular';
       <button (click)="makeApiCall()">Make API Call</button>
     </div>
     <div *ngIf="!context || !theme">Loading...</div>
-  `
+  `,
 })
 export class MyComponent implements OnInit {
   context: any;
@@ -177,7 +178,7 @@ export class MyComponent implements OnInit {
       const response = await this.platformService.apiRequest({
         url: '/api/users',
         method: 'POST',
-        data: { userId: '123' }
+        data: { userId: '123' },
       });
       console.log('API Response:', response);
     } catch (error) {
@@ -219,15 +220,16 @@ npm run start
 
 # Or build individually
 npm run build:lib      # Shadow DOM library (start.js)
-npm run build:iframe   # Iframe application  
+npm run build:iframe   # Iframe application
 npm run build:all      # Both approaches
 ```
 
 **Live URLs:**
+
 - Iframe: http://localhost:8082/
 - Shadow DOM Library: http://localhost:8082/start.js
 
 ## API Reference
 
 - `PlatformModule`: Angular module that provides the platform service
-- `PlatformService`: Injectable service for platform integration 
+- `PlatformService`: Injectable service for platform integration

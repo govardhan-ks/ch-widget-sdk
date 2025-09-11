@@ -1,26 +1,42 @@
 {
-    "name": "ch-widget-sdk",
-    "private": true,
-    "workspaces": ["packages/*", "examples/*"],
-    "scripts": {
-      "build": "rollup -c",
-      "publish": "lerna publish from-package",
-      "dev:react": "npm --prefix examples/react run dev",
-      "dev:vue": "npm --prefix examples/vue run dev",
-      "dev:angular": "npm --prefix examples/angular run dev"
-    },
-    "devDependencies": {
-      "lerna": "^7.0.0",
-      "typescript": "^5.2.0",
-      "@types/react": "^18.3.3",
-      "@types/react-dom": "^18.3.0",
-      "react": "^18.3.1",
-      "react-dom": "^18.3.1",
-      "vue": "^3.4.34",
-      "@angular/core": "^17.3.0",
-      "rollup": "^3.29.4",
-      "@rollup/plugin-typescript": "^11.1.6",
-      "@rollup/plugin-commonjs": "^25.0.7",
-      "@rollup/plugin-node-resolve": "^15.2.3"
-    }
+  "name": "ch-widget-sdk",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "publish": "lerna publish from-package",
+    "dev:react": "npm --prefix examples/react run dev",
+    "dev:vue": "npm --prefix examples/vue run dev",
+    "dev:angular": "npm --prefix examples/angular run dev",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@angular/core": "^17.3.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "husky": "^9.1.7",
+    "lerna": "^7.0.0",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.6.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rollup": "^3.29.4",
+    "typescript": "^5.2.0",
+    "vue": "^3.4.34"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx,json,css,scss,md,html,vue}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "penpal": "^7.0.4"
   }
+}

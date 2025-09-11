@@ -7,8 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       'widget-sdk-vue': resolve(__dirname, '../../packages/vue/src/index.ts'),
-      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
-    }
+      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts'),
+    },
   },
   define: {
     // Define process.env for browser compatibility
@@ -28,13 +28,13 @@ export default defineConfig({
         format: 'es',
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
-      }
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
     },
-    minify: false // Keep readable for debugging
+    minify: false, // Keep readable for debugging
   },
   server: {
     port: 5174,
-    strictPort: true
-  }
+    strictPort: true,
+  },
 });

@@ -9,7 +9,7 @@ examples/
 ├── shared/           # Shared utilities and mocks
 │   └── dev-mock.ts  # Development platform API mock
 ├── react/           # React Widget Examples
-├── angular/         # Angular Widget Examples  
+├── angular/         # Angular Widget Examples
 ├── vue/             # Vue Widget Examples
 └── README.md        # This file
 ```
@@ -21,40 +21,46 @@ Each framework provides **two integration approaches**:
 ### React (`react/`)
 
 **📦 Build Outputs:**
-- `dist/start.js` - Shadow DOM library (1.25 MB, clean exports) 
+
+- `dist/start.js` - Shadow DOM library (1.25 MB, clean exports)
 - `dist/index.html` + `dist/assets/` - Iframe application (240 KB)
 
 **🔧 Source Files:**
+
 - `src/start.tsx` - Shadow DOM entry point with `export { start }`
-- `src/main.tsx` - Iframe entry point  
+- `src/main.tsx` - Iframe entry point
 - `src/root-app.tsx` - Shared React widget component
 - `server.js` - Express server with CORS support
 - Port: `8080`
 
 ### Vue (`vue/`)
 
-**📦 Build Outputs:**  
+**📦 Build Outputs:**
+
 - `dist/start.js` - Shadow DOM library (257 KB, clean exports)
 - `dist/index.html` + `dist/assets/` - Iframe application (196 KB)
 
 **🔧 Source Files:**
+
 - `src/start.ts` - Shadow DOM entry point with `export { start }`
 - `src/main.ts` - Iframe entry point
-- `src/root-app.vue` - Shared Vue widget component  
+- `src/root-app.vue` - Shared Vue widget component
 - `server.js` - Express server with CORS support
 - Port: `8081`
 
 ### Angular (`angular/`)
 
 **📦 Build Outputs:**
+
 - `dist/start.js` - Shadow DOM library (2.79 MB, clean exports)
 - `dist/index.html` + `dist/assets/` - Iframe application (2.79 MB)
 
 **🔧 Source Files:**
+
 - `src/start.ts` - Shadow DOM entry point with `export { start }`
 - `src/main.ts` - Iframe entry point
 - `src/root-app.component.ts` - Shared Angular widget component
-- `server.js` - Express server with CORS support  
+- `server.js` - Express server with CORS support
 - Port: `8082`
 
 ## 🛠️ Development Commands
@@ -70,7 +76,7 @@ npm run start
 # Build only Shadow DOM library
 npm run build:lib
 
-# Build only iframe application  
+# Build only iframe application
 npm run build:iframe
 
 # Build both approaches
@@ -104,8 +110,8 @@ npm run start
 
 ## 🌐 Server Ports
 
-| Framework | Port | URL |
-|-----------|------|-----|
+| Framework | Port | URL                   |
+| --------- | ---- | --------------------- |
 | React     | 8080 | http://localhost:8080 |
 | Vue       | 8081 | http://localhost:8081 |
 | Angular   | 8082 | http://localhost:8082 |
@@ -147,8 +153,9 @@ await start(shadowRoot);
 ```
 
 **Library URLs:**
+
 - React: http://localhost:8080/start.js
-- Vue: http://localhost:8081/start.js  
+- Vue: http://localhost:8081/start.js
 - Angular: http://localhost:8082/start.js
 
 Communication uses custom DOM events with proper bubbling:
@@ -209,21 +216,21 @@ npm run start
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Widget Iframe Test</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Testing Iframe Widget Integration</h1>
-    
+
     <h2>React Widget</h2>
     <iframe src="http://localhost:8080/" width="100%" height="400"></iframe>
-    
+
     <h2>Vue Widget</h2>
     <iframe src="http://localhost:8081/" width="100%" height="400"></iframe>
-    
+
     <h2>Angular Widget</h2>
     <iframe src="http://localhost:8082/" width="100%" height="400"></iframe>
-</body>
+  </body>
 </html>
 ```
 
@@ -232,79 +239,85 @@ npm run start
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Widget Shadow DOM Test</title>
     <style>
-        .widget-container {
-            border: 2px solid #ccc;
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 8px;
-        }
+      .widget-container {
+        border: 2px solid #ccc;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 8px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Testing Shadow DOM Widget Integration</h1>
-    
+
     <div class="widget-container">
-        <h2>React Widget</h2>
-        <div id="react-widget"></div>
+      <h2>React Widget</h2>
+      <div id="react-widget"></div>
     </div>
-    
+
     <div class="widget-container">
-        <h2>Vue Widget</h2>
-        <div id="vue-widget"></div>
+      <h2>Vue Widget</h2>
+      <div id="vue-widget"></div>
     </div>
-    
+
     <div class="widget-container">
-        <h2>Angular Widget</h2>
-        <div id="angular-widget"></div>
+      <h2>Angular Widget</h2>
+      <div id="angular-widget"></div>
     </div>
 
     <script>
-        async function loadWidgets() {
-            // Load React Widget
-            try {
-                const { start: startReact } = await import('http://localhost:8080/start.js');
-                const reactElement = document.querySelector('#react-widget');
-                const reactShadow = reactElement.attachShadow({ mode: 'open' });
-                await startReact(reactShadow);
-                console.log('React widget loaded successfully');
-            } catch (error) {
-                console.error('Failed to load React widget:', error);
-            }
-
-            // Load Vue Widget  
-            try {
-                const { start: startVue } = await import('http://localhost:8081/start.js');
-                const vueElement = document.querySelector('#vue-widget');
-                const vueShadow = vueElement.attachShadow({ mode: 'open' });
-                await startVue(vueShadow);
-                console.log('Vue widget loaded successfully');
-            } catch (error) {
-                console.error('Failed to load Vue widget:', error);
-            }
-
-            // Load Angular Widget
-            try {
-                const { start: startAngular } = await import('http://localhost:8082/start.js');
-                const angularElement = document.querySelector('#angular-widget');
-                const angularShadow = angularElement.attachShadow({ mode: 'open' });
-                await startAngular(angularShadow);
-                console.log('Angular widget loaded successfully');
-            } catch (error) {
-                console.error('Failed to load Angular widget:', error);
-            }
+      async function loadWidgets() {
+        // Load React Widget
+        try {
+          const { start: startReact } = await import(
+            'http://localhost:8080/start.js'
+          );
+          const reactElement = document.querySelector('#react-widget');
+          const reactShadow = reactElement.attachShadow({ mode: 'open' });
+          await startReact(reactShadow);
+          console.log('React widget loaded successfully');
+        } catch (error) {
+          console.error('Failed to load React widget:', error);
         }
 
-        // Load widgets when page is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadWidgets);
-        } else {
-            loadWidgets();
+        // Load Vue Widget
+        try {
+          const { start: startVue } = await import(
+            'http://localhost:8081/start.js'
+          );
+          const vueElement = document.querySelector('#vue-widget');
+          const vueShadow = vueElement.attachShadow({ mode: 'open' });
+          await startVue(vueShadow);
+          console.log('Vue widget loaded successfully');
+        } catch (error) {
+          console.error('Failed to load Vue widget:', error);
         }
+
+        // Load Angular Widget
+        try {
+          const { start: startAngular } = await import(
+            'http://localhost:8082/start.js'
+          );
+          const angularElement = document.querySelector('#angular-widget');
+          const angularShadow = angularElement.attachShadow({ mode: 'open' });
+          await startAngular(angularShadow);
+          console.log('Angular widget loaded successfully');
+        } catch (error) {
+          console.error('Failed to load Angular widget:', error);
+        }
+      }
+
+      // Load widgets when page is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadWidgets);
+      } else {
+        loadWidgets();
+      }
     </script>
-</body>
+  </body>
 </html>
 ```
 

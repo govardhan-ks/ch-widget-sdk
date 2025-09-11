@@ -13,12 +13,15 @@ npm install widget-sdk-core
 The SDK supports two integration methods:
 
 ### Iframe Integration
+
 When your widget runs inside an iframe, the SDK automatically uses Penpal for parent-child communication. **No additional setup required.**
 
 ### Web Component Integration
+
 When running as a standalone web component, the SDK automatically detects the web component and uses DOM events for communication. **No additional setup required.**
 
 **Automatic Detection**: The SDK automatically detects web components by:
+
 - Finding custom elements with hyphenated tag names (e.g., `<my-widget>`)
 - Using the current script context to locate the web component
 - Generating unique IDs for each widget instance
@@ -43,7 +46,7 @@ try {
     url: '/api/users',
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: { userId: '123' }
+    data: { userId: '123' },
   });
   console.log('API Response:', response);
 } catch (error) {
@@ -69,7 +72,7 @@ try {
     url: '/api/users',
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: { userId: '123' }
+    data: { userId: '123' },
   });
   console.log('API Response:', response);
 } catch (error) {
@@ -100,20 +103,23 @@ interface ApiRequestOptions {
 ### Platform Detection
 
 The SDK automatically detects the platform:
+
 - **Iframe**: Uses Penpal for parent-child communication
 - **Web Component**: Uses DOM CustomEvents for communication
 
 ### Initialization
 
 **Automatic Detection**: The SDK automatically detects the platform environment:
+
 - **Iframe**: Uses Penpal for parent-child communication
 - **Web Component**: Uses DOM CustomEvents for communication
 
 **No Manual Initialization Required**: Simply call the API functions directly:
+
 ```typescript
 import { getContext, getTheme, apiRequest } from 'widget-sdk-core';
 
 // The SDK automatically detects the platform and initializes
 const context = await getContext();
 const theme = await getTheme();
-``` 
+```

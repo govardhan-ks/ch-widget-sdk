@@ -7,10 +7,17 @@ import { PlatformService } from 'widget-sdk-angular';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div *ngIf="context() && theme(); else loading" [ngStyle]="containerStyle()">
+    <div
+      *ngIf="context() && theme(); else loading"
+      [ngStyle]="containerStyle()"
+    >
       <div [ngStyle]="cardStyle()">
         <div [ngStyle]="headerStyle()">
-          <img [src]="context().user?.avatarUrl" [alt]="context().user?.name" [ngStyle]="avatarStyle()" />
+          <img
+            [src]="context().user?.avatarUrl"
+            [alt]="context().user?.name"
+            [ngStyle]="avatarStyle()"
+          />
           <div>
             <div style="font-weight:600">{{ context().user?.name }}</div>
             <div [ngStyle]="mutedStyle()">{{ context().user?.email }}</div>
@@ -21,21 +28,46 @@ import { PlatformService } from 'widget-sdk-angular';
         </div>
 
         <div [ngStyle]="{ marginTop: theme().spacingLg }">
-          <div [ngStyle]="{ fontSize: '14px', color: theme().colorMuted }">Organization</div>
-          <div [ngStyle]="{ display: 'flex', gap: theme().spacingMd, alignItems: 'center', marginTop: theme().spacingSm }">
+          <div [ngStyle]="{ fontSize: '14px', color: theme().colorMuted }">
+            Organization
+          </div>
+          <div
+            [ngStyle]="{
+              display: 'flex',
+              gap: theme().spacingMd,
+              alignItems: 'center',
+              marginTop: theme().spacingSm,
+            }"
+          >
             <div style="font-weight:600">{{ context().org?.name }}</div>
             <span [ngStyle]="badgeStyle()">{{ context().org?.plan }}</span>
           </div>
         </div>
 
-        <div [ngStyle]="{ marginTop: theme().spacingLg, display: 'flex', gap: theme().spacingMd }">
-          <button [ngStyle]="buttonStyle()" (click)="makeApiCall()">Make API Call</button>
-          <a href="#" [ngStyle]="{ alignSelf: 'center', color: theme().colorMuted, textDecoration: 'underline' }">Learn more</a>
+        <div
+          [ngStyle]="{
+            marginTop: theme().spacingLg,
+            display: 'flex',
+            gap: theme().spacingMd,
+          }"
+        >
+          <button [ngStyle]="buttonStyle()" (click)="makeApiCall()">
+            Make API Call
+          </button>
+          <a
+            href="#"
+            [ngStyle]="{
+              alignSelf: 'center',
+              color: theme().colorMuted,
+              textDecoration: 'underline',
+            }"
+            >Learn more</a
+          >
         </div>
       </div>
     </div>
     <ng-template #loading>Loading...</ng-template>
-  `
+  `,
 })
 export class RootAppComponent {
   private platform = inject(PlatformService);
@@ -52,12 +84,12 @@ export class RootAppComponent {
     if (!this.platform.isInitialized) {
       await this.platform.initialize();
     }
-    
+
     // Subscribe to observable streams
     this.platform.context$.subscribe(context => {
       this.context.set(context);
     });
-    
+
     this.platform.theme$.subscribe(theme => {
       this.theme.set(theme);
     });
@@ -66,17 +98,21 @@ export class RootAppComponent {
   containerStyle = () => ({
     fontFamily: this.theme()?.fontFamily || 'sans-serif',
     padding: this.theme()?.spacingLg || '16px',
-    color: this.theme()?.colorText
+    color: this.theme()?.colorText,
   });
 
   cardStyle = () => ({
     background: this.theme()?.colorSurface,
     borderRadius: this.theme()?.borderRadius,
     border: '1px solid #e5e7eb',
-    padding: this.theme()?.spacingLg
+    padding: this.theme()?.spacingLg,
   });
 
-  headerStyle = () => ({ display: 'flex', alignItems: 'center', gap: this.theme()?.spacingMd });
+  headerStyle = () => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: this.theme()?.spacingMd,
+  });
   avatarStyle = () => ({ width: '48px', height: '48px', borderRadius: '50%' });
   mutedStyle = () => ({ color: this.theme()?.colorMuted });
   badgeStyle = () => ({
@@ -85,7 +121,7 @@ export class RootAppComponent {
     color: this.theme()?.colorPrimaryText,
     borderRadius: '9999px',
     padding: '2px 8px',
-    fontSize: '12px'
+    fontSize: '12px',
   });
   buttonStyle = () => ({
     height: this.theme()?.button?.height || '36px',
@@ -94,7 +130,7 @@ export class RootAppComponent {
     color: this.theme()?.colorPrimaryText,
     border: 'none',
     borderRadius: this.theme()?.borderRadius,
-    cursor: 'pointer'
+    cursor: 'pointer',
   });
 
   async makeApiCall() {
@@ -102,13 +138,8 @@ export class RootAppComponent {
       const response = await this.platform.apiRequest({
         url: '/api/users',
         method: 'POST',
-        data: { userId: '123' }
+        data: { userId: '123' },
       });
-      console.log('API Response:', response);
-    } catch (error) {
-      console.error('API Error:', error);
-    }
+    } catch (error) {}
   }
 }
-
-

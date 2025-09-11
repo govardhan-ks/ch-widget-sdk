@@ -7,9 +7,12 @@ export default defineConfig({
   resolve: {
     alias: {
       // Point to local source for instant rebuilds
-      'widget-sdk-react': resolve(__dirname, '../../packages/react/src/index.tsx'),
-      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
-    }
+      'widget-sdk-react': resolve(
+        __dirname,
+        '../../packages/react/src/index.tsx'
+      ),
+      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts'),
+    },
   },
   define: {
     // Define process.env for browser compatibility
@@ -24,7 +27,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
       },
     },
-    minify: false
+    minify: false,
   },
   server: {
     port: 5173,
@@ -33,9 +36,7 @@ export default defineConfig({
       origin: true, // Allow all origins
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-      credentials: true
-    }
-  }
+      credentials: true,
+    },
+  },
 });
-
-

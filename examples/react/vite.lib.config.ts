@@ -6,9 +6,12 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'widget-sdk-react': resolve(__dirname, '../../packages/react/src/index.tsx'),
-      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
-    }
+      'widget-sdk-react': resolve(
+        __dirname,
+        '../../packages/react/src/index.tsx'
+      ),
+      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts'),
+    },
   },
   define: {
     // Define process.env for browser compatibility
@@ -30,10 +33,10 @@ export default defineConfig({
         // 'react-dom',
       ],
     },
-    minify: false // Keep exports readable
+    minify: false, // Keep exports readable
   },
   server: {
     port: 5173,
-    strictPort: true
-  }
+    strictPort: true,
+  },
 });

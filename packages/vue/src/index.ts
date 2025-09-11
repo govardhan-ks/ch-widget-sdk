@@ -1,10 +1,10 @@
-import { App, inject, reactive, type InjectionKey } from "vue";
+import { App, inject, reactive, type InjectionKey } from 'vue';
 import {
   apiRequest,
   initPlatform,
   getContextObservable,
   getThemeObservable,
-} from "widget-sdk-core";
+} from 'widget-sdk-core';
 
 type Platform = {
   context: any;
@@ -13,7 +13,7 @@ type Platform = {
   initPlatform: typeof initPlatform;
 };
 
-export const platformKey: InjectionKey<Platform> = Symbol("platform");
+export const platformKey: InjectionKey<Platform> = Symbol('platform');
 
 export function createPlatformPlugin(options?: { element?: HTMLElement }) {
   return {
@@ -31,23 +31,29 @@ export function createPlatformPlugin(options?: { element?: HTMLElement }) {
           return state.theme;
         },
         apiRequest,
-        initPlatform
+        initPlatform,
       };
 
       app.provide(platformKey, platform);
 
       (async () => {
         // Initialize platform
-        await initPlatform(options?.element ? { element: options.element } : undefined);
-        
+        await initPlatform(
+          options?.element ? { element: options.element } : undefined
+        );
+
         // Subscribe to observables
         const [contextObs, themeObs] = await Promise.all([
           getContextObservable(),
-          getThemeObservable()
+          getThemeObservable(),
         ]);
 
-        contextObs.subscribe((context: any) => { state.context = context; });
-        themeObs.subscribe((theme: any) => { state.theme = theme; });
+        contextObs.subscribe((context: any) => {
+          state.context = context;
+        });
+        themeObs.subscribe((theme: any) => {
+          state.theme = theme;
+        });
       })();
     },
   };
@@ -59,7 +65,7 @@ export function usePlatform(): Platform {
       context: null,
       theme: null,
       apiRequest,
-      initPlatform
+      initPlatform,
     }
   );
 }

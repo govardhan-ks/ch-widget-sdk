@@ -26,8 +26,9 @@ The Widget SDK follows a **layered architecture** designed for maximum developer
 **Purpose**: Universal platform communication layer
 
 **What it provides**:
+
 - ✅ **Automatic Integration Detection**: Iframe vs Shadow DOM
-- ✅ **Dual Transport**: Penpal (iframe) + Custom Events (Shadow DOM)  
+- ✅ **Dual Transport**: Penpal (iframe) + Custom Events (Shadow DOM)
 - ✅ **Platform APIs**: Context, Theme, API Requests
 - ✅ **Event Scoping**: Unique widget IDs for multi-instance support
 - ✅ **Zero Configuration**: Works out of the box
@@ -36,8 +37,8 @@ The Widget SDK follows a **layered architecture** designed for maximum developer
 // Universal APIs - work in any environment
 import { getContext, getTheme, apiRequest } from 'widget-sdk-core';
 
-const context = await getContext();  // User/org data
-const theme = await getTheme();      // UI theme
+const context = await getContext(); // User/org data
+const theme = await getTheme(); // UI theme
 const data = await apiRequest({ url: '/api/users' });
 ```
 
@@ -46,6 +47,7 @@ const data = await apiRequest({ url: '/api/users' });
 **Purpose**: React-specific integration with hooks and context
 
 **What it provides**:
+
 - ✅ **`PlatformProvider`**: React Context for platform data
 - ✅ **`usePlatform()` Hook**: Access platform APIs in components
 - ✅ **Automatic State Management**: Reactive updates
@@ -56,20 +58,18 @@ import { PlatformProvider, usePlatform } from 'widget-sdk-react';
 
 function MyWidget() {
   const { context, theme, apiRequest } = usePlatform();
-  
+
   if (!context) return <div>Loading...</div>;
-  
+
   return (
-    <div style={{ color: theme.colorText }}>
-      Hello {context.user.name}!
-    </div>
+    <div style={{ color: theme.colorText }}>Hello {context.user.name}!</div>
   );
 }
 
 // Usage
 <PlatformProvider element={shadowRoot}>
   <MyWidget />
-</PlatformProvider>
+</PlatformProvider>;
 ```
 
 ### **🟢 Vue Package (`widget-sdk-vue`)**
@@ -77,6 +77,7 @@ function MyWidget() {
 **Purpose**: Vue 3 integration with composables and plugins
 
 **What it provides**:
+
 - ✅ **`createPlatformPlugin()`**: Vue plugin for DI
 - ✅ **`usePlatform()` Composable**: Reactive platform data
 - ✅ **Automatic Reactivity**: Vue's reactive system integration
@@ -100,6 +101,7 @@ const platform = usePlatform();
 **Purpose**: Angular integration with services and dependency injection
 
 **What it provides**:
+
 - ✅ **`PlatformService`**: Injectable service
 - ✅ **`PlatformModule`**: Angular module
 - ✅ **Observable Patterns**: RxJS integration
@@ -113,7 +115,7 @@ import { PlatformService } from 'widget-sdk-angular';
     <div *ngIf="context" [style.color]="theme?.colorText">
       Hello {{ context?.user?.name }}!
     </div>
-  `
+  `,
 })
 export class MyComponent implements OnInit {
   context: any;
@@ -166,11 +168,11 @@ function MyWidget() {
 
 **Solution**: Framework-specific patterns
 
-| Framework | Native Pattern | Widget SDK |
-|-----------|----------------|------------|
-| **React** | Hooks + Context | `usePlatform()` |
-| **Vue** | Composables | `usePlatform()` composable |
-| **Angular** | Services + DI | `PlatformService` |
+| Framework   | Native Pattern  | Widget SDK                 |
+| ----------- | --------------- | -------------------------- |
+| **React**   | Hooks + Context | `usePlatform()`            |
+| **Vue**     | Composables     | `usePlatform()` composable |
+| **Angular** | Services + DI   | `PlatformService`          |
 
 ### **4. 📦 Multiple Deployment Options**
 
@@ -182,7 +184,7 @@ function MyWidget() {
 # Shadow DOM library (clean exports)
 npm run build:lib      # → start.js
 
-# Iframe application  
+# Iframe application
 npm run build:iframe   # → index.html + assets
 
 # Both approaches
@@ -217,7 +219,7 @@ const { start } = await import('./start.js'); // Always works!
 ```javascript
 // Multiple widgets on same page - no conflicts!
 await start(shadowRoot1); // Widget instance 1
-await start(shadowRoot2); // Widget instance 2  
+await start(shadowRoot2); // Widget instance 2
 await start(shadowRoot3); // Widget instance 3
 ```
 
@@ -257,13 +259,13 @@ await start(shadowRoot);
 
 ### **Development Commands**
 
-| Command | Purpose | Output |
-|---------|---------|--------|
-| `npm run dev` | Development server | Hot reload |
-| `npm run build:lib` | Shadow DOM library | `start.js` |
-| `npm run build:iframe` | Iframe app | `index.html` + assets |
-| `npm run build:all` | Both approaches | Complete package |
-| `npm run start` | Build + serve | Production test |
+| Command                | Purpose            | Output                |
+| ---------------------- | ------------------ | --------------------- |
+| `npm run dev`          | Development server | Hot reload            |
+| `npm run build:lib`    | Shadow DOM library | `start.js`            |
+| `npm run build:iframe` | Iframe app         | `index.html` + assets |
+| `npm run build:all`    | Both approaches    | Complete package      |
+| `npm run start`        | Build + serve      | Production test       |
 
 ## 🎪 Integration Examples
 
@@ -271,16 +273,14 @@ await start(shadowRoot);
 
 ```html
 <!-- Host application -->
-<iframe src="https://widgets.myapp.com/my-widget/" 
-        width="100%" 
-        height="400">
+<iframe src="https://widgets.myapp.com/my-widget/" width="100%" height="400">
 </iframe>
 ```
 
 ### **Shadow DOM Integration**
 
 ```javascript
-// Host application  
+// Host application
 const { start } = await import('https://widgets.myapp.com/start.js');
 
 // Create isolated widget
@@ -301,7 +301,7 @@ const angularWidget = await import('./angular-start.js');
 await Promise.all([
   reactWidget.start(shadowRoot1),
   vueWidget.start(shadowRoot2),
-  angularWidget.start(shadowRoot3)
+  angularWidget.start(shadowRoot3),
 ]);
 ```
 
@@ -316,7 +316,7 @@ const theme = await getTheme();
 // React
 <div style={{ color: theme.colorText, padding: theme.spacingLg }}>
 
-// Vue  
+// Vue
 <div :style="{ color: theme.colorText, padding: theme.spacingLg }">
 
 // Angular
@@ -329,9 +329,9 @@ const theme = await getTheme();
 // Rich context data available in all frameworks
 const context = await getContext();
 
-context.user    // { name, email, role, avatarUrl }
-context.org     // { name, plan, features }
-context.env     // { isDev, version, region }
+context.user; // { name, email, role, avatarUrl }
+context.org; // { name, plan, features }
+context.env; // { isDev, version, region }
 ```
 
 ### **Runtime Theme Updates** 🔄
@@ -342,13 +342,13 @@ The SDK automatically handles theme updates when the host application changes th
 // React - Automatic reactive updates
 function MyComponent() {
   const { theme } = usePlatform(); // ✅ Updates automatically when host changes theme
-  
+
   return <div style={{ color: theme.colorText }}>
     Theme updates automatically!
   </div>;
 }
 
-// Vue - Reactive theme updates  
+// Vue - Reactive theme updates
 <template>
   <div :style="{ color: platform.theme.colorText }">
     Theme updates automatically!
@@ -368,13 +368,13 @@ const platform = usePlatform(); // ✅ theme is reactive
 export class MyComponent {
   private platform = inject(PlatformService);
   theme = signal<any>(null);
-  
+
   async ngOnInit() {
     // ✅ Initialize platform if needed (for iframe mode)
     if (!this.platform.isInitialized) {
       await this.platform.initialize();
     }
-    
+
     // ✅ Automatically subscribes to theme changes
     this.platform.theme$.subscribe(theme => this.theme.set(theme));
   }
@@ -382,8 +382,9 @@ export class MyComponent {
 ```
 
 **Key Benefits:**
+
 - 🎯 **Zero Configuration** - Works out of the box
-- ⚡ **Automatic Updates** - UI re-renders when theme changes  
+- ⚡ **Automatic Updates** - UI re-renders when theme changes
 - 🔒 **Type Safe** - Full TypeScript support
 - 🎨 **Framework Native** - Uses each framework's reactivity system
 
@@ -392,6 +393,7 @@ export class MyComponent {
 For host applications to notify widgets of theme changes:
 
 #### **Iframe Integration**
+
 ```typescript
 // In your parent application (host)
 const iframe = document.querySelector('#widget-iframe');
@@ -399,43 +401,48 @@ const connection = Penpal.connectToChild({
   iframe,
   methods: {
     // Provide onThemeChange method that widgets can subscribe to
-    onThemeChange: (callback) => {
+    onThemeChange: callback => {
       // Store callback and call it when theme changes
       themeChangeCallbacks.add(callback);
       return () => themeChangeCallbacks.delete(callback);
-    }
-  }
+    },
+  },
 });
 
 // When your theme changes
-const newTheme = { colorPrimary: '#ff6b6b', /* ... */ };
+const newTheme = { colorPrimary: '#ff6b6b' /* ... */ };
 themeChangeCallbacks.forEach(callback => callback(newTheme));
 ```
 
 #### **Web Component Integration**
+
 ```typescript
 // In your host application
 const widgetElement = document.querySelector('my-widget');
 
 // Listen for widget requests
-widgetElement.addEventListener('widget-request', (e) => {
+widgetElement.addEventListener('widget-request', e => {
   if (e.detail.type === 'getTheme') {
     // Respond with current theme
-    widgetElement.dispatchEvent(new CustomEvent('widget-response', {
-      detail: { widgetId: e.detail.widgetId, data: currentTheme }
-    }));
+    widgetElement.dispatchEvent(
+      new CustomEvent('widget-response', {
+        detail: { widgetId: e.detail.widgetId, data: currentTheme },
+      })
+    );
   }
 });
 
 // When theme changes, notify the widget
 function notifyThemeChange(newTheme) {
-  widgetElement.dispatchEvent(new CustomEvent('widget-theme-change', {
-    detail: { 
-      type: 'themeChange', 
-      theme: newTheme,
-      widgetId: widgetElement.id // Target specific widget instance
-    }
-  }));
+  widgetElement.dispatchEvent(
+    new CustomEvent('widget-theme-change', {
+      detail: {
+        type: 'themeChange',
+        theme: newTheme,
+        widgetId: widgetElement.id, // Target specific widget instance
+      },
+    })
+  );
 }
 
 // Example: Theme toggle
@@ -446,6 +453,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 ```
 
 #### **Angular Shadow DOM Setup**
+
 ```typescript
 // For Angular widgets in shadow DOM, use APP_INITIALIZER
 import { PlatformService } from 'widget-sdk-angular';
@@ -460,8 +468,8 @@ export async function start(shadowRoot: ShadowRoot) {
       PlatformService,
       {
         provide: APP_INITIALIZER,
-        useFactory: (platform: PlatformService) => 
-          () => platform.initialize({ element: mount }), // ✅ Pass element for shadow DOM
+        useFactory: (platform: PlatformService) => () =>
+          platform.initialize({ element: mount }), // ✅ Pass element for shadow DOM
         deps: [PlatformService],
         multi: true,
       },
@@ -474,32 +482,36 @@ export async function start(shadowRoot: ShadowRoot) {
 
 ## 📊 Performance Benefits
 
-| Metric | Traditional | Widget SDK | Improvement |
-|--------|-------------|------------|-------------|
-| **Setup Time** | 2-4 hours | 10 minutes | **95% faster** |
-| **Bundle Size** | Framework + boilerplate | Framework only | **30-50% smaller** |
-| **Integration Code** | 100+ lines | 5-10 lines | **90% less code** |
-| **Error Prone** | High | Low | **Fewer bugs** |
-| **Framework Support** | Manual ports | Native APIs | **Consistent DX** |
+| Metric                | Traditional             | Widget SDK     | Improvement        |
+| --------------------- | ----------------------- | -------------- | ------------------ |
+| **Setup Time**        | 2-4 hours               | 10 minutes     | **95% faster**     |
+| **Bundle Size**       | Framework + boilerplate | Framework only | **30-50% smaller** |
+| **Integration Code**  | 100+ lines              | 5-10 lines     | **90% less code**  |
+| **Error Prone**       | High                    | Low            | **Fewer bugs**     |
+| **Framework Support** | Manual ports            | Native APIs    | **Consistent DX**  |
 
 ## 🔒 Production Ready Features
 
 ### **✅ Type Safety**
+
 - Full TypeScript support across all packages
 - Runtime type checking for platform APIs
 - IntelliSense for theme and context objects
 
 ### **✅ Error Handling**
+
 - Graceful fallbacks for connection failures
 - Automatic retry logic for platform APIs
 - Development-friendly error messages
 
 ### **✅ Performance**
+
 - Tree-shakeable packages (`sideEffects: false`)
 - Lazy loading support for Shadow DOM
 - Minimal runtime overhead
 
-### **✅ Cross-Browser Compatibility**  
+### **✅ Cross-Browser Compatibility**
+
 - Modern browser support (ES2020+)
 - Shadow DOM polyfill compatibility
 - iframe postMessage fallbacks
@@ -507,6 +519,7 @@ export async function start(shadowRoot: ShadowRoot) {
 ## 🎯 Use Cases
 
 ### **Dashboard Widgets**
+
 ```typescript
 // Perfect for embeddable dashboard components
 const { context } = usePlatform();
@@ -514,6 +527,7 @@ const userMetrics = await apiRequest({ url: `/metrics/${context.user.id}` });
 ```
 
 ### **Third-Party Integrations**
+
 ```typescript
 // Embed into customer applications
 const { start } = await import('https://cdn.myapp.com/widget.js');
@@ -521,6 +535,7 @@ await start(shadowRoot); // Isolated, secure integration
 ```
 
 ### **Micro-Frontend Architecture**
+
 ```typescript
 // Different teams, different frameworks, same platform
 const teamAWidget = await import('./team-a-react.js');
@@ -529,6 +544,7 @@ const teamCWidget = await import('./team-c-angular.js');
 ```
 
 ### **White-Label Solutions**
+
 ```typescript
 // Same widget, different themes per customer
 const theme = await getTheme(); // Customer-specific theme
@@ -561,7 +577,7 @@ widgetSDK.init().then(() => {
 // After: Framework-native patterns
 const { context } = usePlatform(); // React Hook
 // or
-const platform = usePlatform(); // Vue Composable  
+const platform = usePlatform(); // Vue Composable
 // or
 this.platform.getContext(); // Angular Service
 ```
@@ -569,12 +585,14 @@ this.platform.getContext(); // Angular Service
 ## 📈 ROI Calculator
 
 **Time Savings Per Widget:**
+
 - Setup: 2-4 hours → 10 minutes = **3.5 hours saved**
 - Maintenance: 50% reduction in bug reports
 - Integration: 90% less code to maintain
 
 **For 10 widgets per year:**
-- **35 hours saved** in development  
+
+- **35 hours saved** in development
 - **$5,000+ saved** (at $150/hour)
 - **Faster time-to-market**
 - **Better developer satisfaction**

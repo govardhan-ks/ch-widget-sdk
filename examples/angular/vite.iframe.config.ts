@@ -4,9 +4,12 @@ import { resolve } from 'path';
 export default defineConfig({
   resolve: {
     alias: {
-      'widget-sdk-angular': resolve(__dirname, '../../packages/angular/src/index.ts'),
-      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
-    }
+      'widget-sdk-angular': resolve(
+        __dirname,
+        '../../packages/angular/src/index.ts'
+      ),
+      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts'),
+    },
   },
   build: {
     outDir: 'dist', // Same output directory
@@ -20,13 +23,13 @@ export default defineConfig({
         format: 'es',
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
-      }
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
     },
-    minify: false // Keep readable for debugging
+    minify: false, // Keep readable for debugging
   },
   server: {
     port: 4200,
-    strictPort: true
-  }
+    strictPort: true,
+  },
 });

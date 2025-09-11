@@ -7,5 +7,3 @@ export async function start(element: HTMLElement) {
   app.use(createPlatformPlugin({ element }));
   app.mount(element);
 }
-
-

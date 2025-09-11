@@ -4,7 +4,6 @@ import { PlatformProvider } from 'widget-sdk-react';
 import { App } from './root-app';
 
 export async function start(element: HTMLElement) {
-
   const root = createRoot(element);
   root.render(
     <React.StrictMode>
@@ -14,5 +13,3 @@ export async function start(element: HTMLElement) {
     </React.StrictMode>
   );
 }
-
-

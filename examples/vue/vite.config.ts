@@ -7,8 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       'widget-sdk-vue': resolve(__dirname, '../../packages/vue/src/index.ts'),
-      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
-    }
+      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts'),
+    },
   },
   define: {
     // Define process.env for browser compatibility
@@ -23,7 +23,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
       },
     },
-    minify: false
+    minify: false,
   },
   server: {
     port: 5174,
@@ -32,9 +32,7 @@ export default defineConfig({
       origin: true, // Allow all origins
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-      credentials: true
-    }
-  }
+      credentials: true,
+    },
+  },
 });
-
-

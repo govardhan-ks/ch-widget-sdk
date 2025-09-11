@@ -7,8 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       'widget-sdk-vue': resolve(__dirname, '../../packages/vue/src/index.ts'),
-      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts')
-    }
+      'widget-sdk-core': resolve(__dirname, '../../packages/core/src/index.ts'),
+    },
   },
   define: {
     // Define process.env for browser compatibility
@@ -29,10 +29,10 @@ export default defineConfig({
         // 'vue',
       ],
     },
-    minify: false // Keep exports readable
+    minify: false, // Keep exports readable
   },
   server: {
     port: 5174,
-    strictPort: true
-  }
+    strictPort: true,
+  },
 });
