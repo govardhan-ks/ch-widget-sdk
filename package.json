@@ -11,6 +11,8 @@
     "dev:react": "npm --prefix examples/react run dev",
     "dev:vue": "npm --prefix examples/vue run dev",
     "dev:angular": "npm --prefix examples/angular run dev",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md,html,vue}\" --ignore-path .prettierignore",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md,html,vue}\" --ignore-path .prettierignore",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -32,8 +34,7 @@
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json,css,scss,md,html,vue}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "dependencies": {
