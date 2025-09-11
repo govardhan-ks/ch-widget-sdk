@@ -12,7 +12,6 @@ export interface PlatformAPI {
   getContext(): Promise<Record<any, any>>;
   getTheme(): Promise<Record<string, any>>;
   apiRequest(req: ApiRequestOptions): Promise<any>;
-  onThemeChange?(callback: (theme: Record<string, any>) => void): () => void;
 }
 
 /**
@@ -76,21 +75,28 @@ let themeObservable: PlatformObservable<any> | null = null;
 export async function initPlatform(ctx?: { element?: HTMLElement }) {
   if (connection) return connection;
 
-  // Dev fallback: if a global dev mock is present, use it
-  const devMock = (globalThis as any).__WIDGET_SDK_DEV__ as PlatformAPI | undefined;
-  if (devMock) {
-    connection = devMock;
-    setupObservables();
-    return connection;
-  }
+  
 
   if (window.self !== window.top) {
     // iframe case → Penpal
-    const penpalConnection = await Penpal.connectToParent<PlatformAPI>({ methods: {} }).promise;
-    connection = {
-      ...penpalConnection,
-      onThemeChange: (penpalConnection as any).onThemeChange,
-    };
+    const penpalConnection = await Penpal.connectToParent<PlatformAPI>({ 
+      methods: {
+        // ✅ Expose methods that parent can call directly
+        updateTheme: (newTheme: any) => {
+          console.log('🎨 Widget received theme update from parent:', newTheme);
+          if (themeObservable) {
+            themeObservable.next(newTheme);
+          }
+        },
+        updateContext: (newContext: any) => {
+          console.log('📝 Widget received context update from parent:', newContext);
+          if (contextObservable) {
+            contextObservable.next(newContext);
+          }
+        }
+      }
+    }).promise;
+    connection = penpalConnection;
     setupObservables();
     return connection;
   }
@@ -158,14 +164,8 @@ function setupObservables(): void {
   if (!themeObservable) {
     themeObservable = new PlatformObservable(() => connection!.getTheme());
 
-    // Set up theme change subscription based on platform
-    if (connection.onThemeChange) {
-      // Platform supports theme change notifications
-      connection.onThemeChange((newTheme) => {
-        themeObservable!.next(newTheme);
-      });
-    } else if (element && widgetId) {
-      // Web component case - listen for DOM events
+    // For web component case - listen for DOM events
+    if (element && widgetId) {
       const themeChangeHandler = (e: Event) => {
         const custom = e as CustomEvent;
         if (custom.detail.widgetId === widgetId && custom.detail.type === 'themeChange') {
@@ -174,6 +174,8 @@ function setupObservables(): void {
       };
       element.addEventListener('widget-theme-change', themeChangeHandler as any);
     }
+    // Note: For iframe case, updateTheme/updateContext methods are exposed 
+    // in connectToParent and called directly by parent (no subscription needed)
   }
 }
 

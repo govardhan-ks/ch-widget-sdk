@@ -2,14 +2,10 @@ import { createApp } from 'vue';
 import { createPlatformPlugin } from 'widget-sdk-vue';
 import RootApp from './root-app.vue';
 
-export async function start(shadowRoot: ShadowRoot) {
-  const mount = document.createElement('div');
-  shadowRoot.appendChild(mount);
-
+export async function start(element: HTMLElement) {
   const app = createApp(RootApp);
-  app.use(createPlatformPlugin({ element: mount }));
-  
-  app.mount(mount);
+  app.use(createPlatformPlugin({ element }));
+  app.mount(element);
 }
 
 

@@ -3,14 +3,12 @@ import { createRoot } from 'react-dom/client';
 import { PlatformProvider } from 'widget-sdk-react';
 import { App } from './root-app';
 
-export async function start(shadowRoot: ShadowRoot) {
-  const mount = document.createElement('div');
-  shadowRoot.appendChild(mount);
+export async function start(element: HTMLElement) {
 
-  const root = createRoot(mount);
+  const root = createRoot(element);
   root.render(
     <React.StrictMode>
-      <PlatformProvider element={mount}>
+      <PlatformProvider element={element}>
         <App />
       </PlatformProvider>
     </React.StrictMode>
